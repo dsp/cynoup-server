@@ -18,32 +18,29 @@ use Thrift\Exception\TApplicationException;
 
 interface NewEdenRoutingIf {
   /**
-   * Find the shortest route between two solar systems
-   * 
-   * Find the shortest routes between two solar system. Additional
+   * <p>Find the shortest routes between two solar system. Additional
    * connections between solar systems can be placed. Available
-   * options are OPTION_PREFER_SHORTEST, OPTION_PREFER_SAFER or
-   * OPTION_PREFER_HIGHSEC.
+   * options are <i>OPTION_PREFER_SHORTEST</i>, <i>OPTION_PREFER_SAFER</i> or
+   * <i>OPTION_PREFER_HIGHSEC</i>.</p>
    * 
-   * Additional connections can contain a 'weight'. Every connection has a weight
+   * <p>Additional connections can contain a 'weight'. Every connection has a weight
    * of 1 by default. Lower values will result in the connection being preferred.
    * Higher numbers will make it less preferred. E.g. weight 2 means if your shortet
    * standard route is 3 jumps we are picking the additional provided connection,
-   * if it's 2 we pick the original connection.
+   * if it's 2 we pick the original connection.</p>
    * 
    * @param int $fromSolarSystemId The system id to start from
    * 
    * @param int $toSolarSystemId The system id to go to
    * 
-   * @param int $opts A list of additional connections, not found in the static dump (e.g. wormholes).
-   * 3: list<NewEden.Connection> connections,
+   * @param \cynoup\neweden\Connection[] $connections A list of additional connections, not found in the static dump (e.g. wormholes).
    * 
-   * /** Options on how to choose routes
+   * @param int $opts Options on how to choose routes
    * 
    * @return int[]
    * @throws \cynoup\neweden\LogicalError
    */
-  public function route($fromSolarSystemId, $toSolarSystemId, $opts);
+  public function route($fromSolarSystemId, $toSolarSystemId, array $connections, $opts);
   /**
    * Find the shorteest jump routes.
    * 
@@ -72,17 +69,18 @@ class NewEdenRoutingClient implements \cynoup\routing\NewEdenRoutingIf {
     $this->output_ = $output ? $output : $input;
   }
 
-  public function route($fromSolarSystemId, $toSolarSystemId, $opts)
+  public function route($fromSolarSystemId, $toSolarSystemId, array $connections, $opts)
   {
-    $this->send_route($fromSolarSystemId, $toSolarSystemId, $opts);
+    $this->send_route($fromSolarSystemId, $toSolarSystemId, $connections, $opts);
     return $this->recv_route();
   }
 
-  public function send_route($fromSolarSystemId, $toSolarSystemId, $opts)
+  public function send_route($fromSolarSystemId, $toSolarSystemId, array $connections, $opts)
   {
     $args = new \cynoup\routing\NewEdenRouting_route_args();
     $args->fromSolarSystemId = $fromSolarSystemId;
     $args->toSolarSystemId = $toSolarSystemId;
+    $args->connections = $connections;
     $args->opts = $opts;
     $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
@@ -206,9 +204,12 @@ class NewEdenRouting_route_args {
   public $toSolarSystemId = null;
   /**
    * A list of additional connections, not found in the static dump (e.g. wormholes).
-   * 3: list<NewEden.Connection> connections,
    * 
-   * /** Options on how to choose routes
+   * @var \cynoup\neweden\Connection[]
+   */
+  public $connections = null;
+  /**
+   * Options on how to choose routes
    * 
    * @var int
    */
@@ -225,6 +226,15 @@ class NewEdenRouting_route_args {
           'var' => 'toSolarSystemId',
           'type' => TType::I32,
           ),
+        3 => array(
+          'var' => 'connections',
+          'type' => TType::LST,
+          'etype' => TType::STRUCT,
+          'elem' => array(
+            'type' => TType::STRUCT,
+            'class' => '\cynoup\neweden\Connection',
+            ),
+          ),
         4 => array(
           'var' => 'opts',
           'type' => TType::BYTE,
@@ -237,6 +247,9 @@ class NewEdenRouting_route_args {
       }
       if (isset($vals['toSolarSystemId'])) {
         $this->toSolarSystemId = $vals['toSolarSystemId'];
+      }
+      if (isset($vals['connections'])) {
+        $this->connections = $vals['connections'];
       }
       if (isset($vals['opts'])) {
         $this->opts = $vals['opts'];
@@ -277,6 +290,24 @@ class NewEdenRouting_route_args {
             $xfer += $input->skip($ftype);
           }
           break;
+        case 3:
+          if ($ftype == TType::LST) {
+            $this->connections = array();
+            $_size0 = 0;
+            $_etype3 = 0;
+            $xfer += $input->readListBegin($_etype3, $_size0);
+            for ($_i4 = 0; $_i4 < $_size0; ++$_i4)
+            {
+              $elem5 = null;
+              $elem5 = new \cynoup\neweden\Connection();
+              $xfer += $elem5->read($input);
+              $this->connections []= $elem5;
+            }
+            $xfer += $input->readListEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
         case 4:
           if ($ftype == TType::BYTE) {
             $xfer += $input->readByte($this->opts);
@@ -305,6 +336,23 @@ class NewEdenRouting_route_args {
     if ($this->toSolarSystemId !== null) {
       $xfer += $output->writeFieldBegin('toSolarSystemId', TType::I32, 2);
       $xfer += $output->writeI32($this->toSolarSystemId);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->connections !== null) {
+      if (!is_array($this->connections)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('connections', TType::LST, 3);
+      {
+        $output->writeListBegin(TType::STRUCT, count($this->connections));
+        {
+          foreach ($this->connections as $iter6)
+          {
+            $xfer += $iter6->write($output);
+          }
+        }
+        $output->writeListEnd();
+      }
       $xfer += $output->writeFieldEnd();
     }
     if ($this->opts !== null) {
@@ -381,14 +429,14 @@ class NewEdenRouting_route_result {
         case 0:
           if ($ftype == TType::LST) {
             $this->success = array();
-            $_size0 = 0;
-            $_etype3 = 0;
-            $xfer += $input->readListBegin($_etype3, $_size0);
-            for ($_i4 = 0; $_i4 < $_size0; ++$_i4)
+            $_size7 = 0;
+            $_etype10 = 0;
+            $xfer += $input->readListBegin($_etype10, $_size7);
+            for ($_i11 = 0; $_i11 < $_size7; ++$_i11)
             {
-              $elem5 = null;
-              $xfer += $input->readI32($elem5);
-              $this->success []= $elem5;
+              $elem12 = null;
+              $xfer += $input->readI32($elem12);
+              $this->success []= $elem12;
             }
             $xfer += $input->readListEnd();
           } else {
@@ -424,9 +472,9 @@ class NewEdenRouting_route_result {
       {
         $output->writeListBegin(TType::I32, count($this->success));
         {
-          foreach ($this->success as $iter6)
+          foreach ($this->success as $iter13)
           {
-            $xfer += $output->writeI32($iter6);
+            $xfer += $output->writeI32($iter13);
           }
         }
         $output->writeListEnd();
@@ -659,14 +707,14 @@ class NewEdenRouting_jumps_result {
         case 0:
           if ($ftype == TType::LST) {
             $this->success = array();
-            $_size7 = 0;
-            $_etype10 = 0;
-            $xfer += $input->readListBegin($_etype10, $_size7);
-            for ($_i11 = 0; $_i11 < $_size7; ++$_i11)
+            $_size14 = 0;
+            $_etype17 = 0;
+            $xfer += $input->readListBegin($_etype17, $_size14);
+            for ($_i18 = 0; $_i18 < $_size14; ++$_i18)
             {
-              $elem12 = null;
-              $xfer += $input->readI32($elem12);
-              $this->success []= $elem12;
+              $elem19 = null;
+              $xfer += $input->readI32($elem19);
+              $this->success []= $elem19;
             }
             $xfer += $input->readListEnd();
           } else {
@@ -702,9 +750,9 @@ class NewEdenRouting_jumps_result {
       {
         $output->writeListBegin(TType::I32, count($this->success));
         {
-          foreach ($this->success as $iter13)
+          foreach ($this->success as $iter20)
           {
-            $xfer += $output->writeI32($iter13);
+            $xfer += $output->writeI32($iter20);
           }
         }
         $output->writeListEnd();

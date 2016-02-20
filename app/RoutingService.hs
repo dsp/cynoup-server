@@ -68,7 +68,7 @@ instance NewEdenRouting_Iface ServiceHandler where
                 in
                 Connection (fromJust sysA) (fromJust sysB)
 
-    jumps self from to s reach opts limit = do
+    jumps self from to reach opts = do
         return $ V.empty
 
 prgVersion :: String
