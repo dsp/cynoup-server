@@ -14,18 +14,16 @@ typedef list<i32> Route
 service NewEdenRouting
 {
     /**
-     * Find the shortest route between two solar systems
-     * 
-     * Find the shortest routes between two solar system. Additional
+     * <p>Find the shortest routes between two solar system. Additional
      * connections between solar systems can be placed. Available
-     * options are OPTION_PREFER_SHORTEST, OPTION_PREFER_SAFER or
-     * OPTION_PREFER_HIGHSEC.
+     * options are <i>OPTION_PREFER_SHORTEST</i>, <i>OPTION_PREFER_SAFER</i> or
+     * <i>OPTION_PREFER_HIGHSEC</i>.</p>
      *
-     * Additional connections can contain a 'weight'. Every connection has a weight
+     * <p>Additional connections can contain a 'weight'. Every connection has a weight
      * of 1 by default. Lower values will result in the connection being preferred.
      * Higher numbers will make it less preferred. E.g. weight 2 means if your shortet
      * standard route is 3 jumps we are picking the additional provided connection,
-     * if it's 2 we pick the original connection.
+     * if it's 2 we pick the original connection.</p>
      */
     Route route(
         /** The system id to start from */
@@ -34,7 +32,7 @@ service NewEdenRouting
         /** The system id to go to */
         2: i32 toSolarSystemId,
 
-        /** A list of additional connections, not found in the static dump (e.g. wormholes).
+        /** A list of additional connections, not found in the static dump (e.g. wormholes). */
         3: list<NewEden.Connection> connections,
 
         /** Options on how to choose routes */
