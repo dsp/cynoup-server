@@ -18,25 +18,42 @@ use Thrift\Exception\TApplicationException;
 
 interface NewEdenMapIf {
   /**
+   * Returns all system in the static dump
+   * 
    * @return array
    */
   public function systems();
   /**
+   * Returns all connections in the static dump
+   * 
    * @return array
    */
   public function connection();
   /**
+   * Return the the two celestials which are in line with the given coordinate,
+   * or are closest to being in line.
+   * 
+   * @note: This implementation is experimental and might not yield correct results.
+   * 
    * @param int $solarSystemId
    * @param \cynoup\neweden\Coordinate $coord
    * @return \cynoup\neweden\Celestial[]
    */
   public function closest($solarSystemId, \cynoup\neweden\Coordinate $coord);
   /**
+   * Closest celestial from a coordinate
+   * 
+   * @note NOT YET IMPLEMENTED!
+   * 
    * @param \cynoup\neweden\Coordinate $coord
    * @return \cynoup\neweden\Celestial
    */
   public function closestCelestial(\cynoup\neweden\Coordinate $coord);
   /**
+   * Distance from a celestial to a coordinate
+   * 
+   * @note NOT YET IMPLMENETED
+   * 
    * @param \cynoup\neweden\Celestial $celestial
    * @param \cynoup\neweden\Coordinate $coord
    * @return double

@@ -137,17 +137,13 @@ default_Route_result = Route_result{
   route_result_le = P.Nothing}
 data Jumps_args = Jumps_args  { jumps_args_fromSolarSystemId :: I.Int32
   , jumps_args_toSolarSystemId :: I.Int32
-  , jumps_args_systems :: (Vector.Vector NewEden_Types.SolarSystem)
-  , jumps_args_reachInLightyears :: P.Double
+  , jumps_args_rangeInLightyears :: P.Double
   , jumps_args_opts :: I.Int8
-  , jumps_args_limit :: I.Int8
   } deriving (P.Show,P.Eq,G.Generic,TY.Typeable)
 instance H.Hashable Jumps_args where
-  hashWithSalt salt record = salt   `H.hashWithSalt` jumps_args_fromSolarSystemId record   `H.hashWithSalt` jumps_args_toSolarSystemId record   `H.hashWithSalt` jumps_args_systems record   `H.hashWithSalt` jumps_args_reachInLightyears record   `H.hashWithSalt` jumps_args_opts record   `H.hashWithSalt` jumps_args_limit record  
+  hashWithSalt salt record = salt   `H.hashWithSalt` jumps_args_fromSolarSystemId record   `H.hashWithSalt` jumps_args_toSolarSystemId record   `H.hashWithSalt` jumps_args_rangeInLightyears record   `H.hashWithSalt` jumps_args_opts record  
 instance QC.Arbitrary Jumps_args where 
   arbitrary = M.liftM Jumps_args (QC.arbitrary)
-          `M.ap`(QC.arbitrary)
-          `M.ap`(QC.arbitrary)
           `M.ap`(QC.arbitrary)
           `M.ap`(QC.arbitrary)
           `M.ap`(QC.arbitrary)
@@ -155,19 +151,15 @@ instance QC.Arbitrary Jumps_args where
              | P.otherwise = M.catMaybes
     [ if obj == default_Jumps_args{jumps_args_fromSolarSystemId = jumps_args_fromSolarSystemId obj} then P.Nothing else P.Just $ default_Jumps_args{jumps_args_fromSolarSystemId = jumps_args_fromSolarSystemId obj}
     , if obj == default_Jumps_args{jumps_args_toSolarSystemId = jumps_args_toSolarSystemId obj} then P.Nothing else P.Just $ default_Jumps_args{jumps_args_toSolarSystemId = jumps_args_toSolarSystemId obj}
-    , if obj == default_Jumps_args{jumps_args_systems = jumps_args_systems obj} then P.Nothing else P.Just $ default_Jumps_args{jumps_args_systems = jumps_args_systems obj}
-    , if obj == default_Jumps_args{jumps_args_reachInLightyears = jumps_args_reachInLightyears obj} then P.Nothing else P.Just $ default_Jumps_args{jumps_args_reachInLightyears = jumps_args_reachInLightyears obj}
+    , if obj == default_Jumps_args{jumps_args_rangeInLightyears = jumps_args_rangeInLightyears obj} then P.Nothing else P.Just $ default_Jumps_args{jumps_args_rangeInLightyears = jumps_args_rangeInLightyears obj}
     , if obj == default_Jumps_args{jumps_args_opts = jumps_args_opts obj} then P.Nothing else P.Just $ default_Jumps_args{jumps_args_opts = jumps_args_opts obj}
-    , if obj == default_Jumps_args{jumps_args_limit = jumps_args_limit obj} then P.Nothing else P.Just $ default_Jumps_args{jumps_args_limit = jumps_args_limit obj}
     ]
 from_Jumps_args :: Jumps_args -> T.ThriftVal
 from_Jumps_args record = T.TStruct $ Map.fromList $ M.catMaybes
   [ (\_v26 -> P.Just (1, ("fromSolarSystemId",T.TI32 _v26))) $ jumps_args_fromSolarSystemId record
   , (\_v26 -> P.Just (2, ("toSolarSystemId",T.TI32 _v26))) $ jumps_args_toSolarSystemId record
-  , (\_v26 -> P.Just (3, ("systems",T.TList (T.T_STRUCT NewEden_Types.typemap_SolarSystem) $ P.map (\_v28 -> NewEden_Types.from_SolarSystem _v28) $ Vector.toList _v26))) $ jumps_args_systems record
-  , (\_v26 -> P.Just (4, ("reachInLightyears",T.TDouble _v26))) $ jumps_args_reachInLightyears record
+  , (\_v26 -> P.Just (4, ("rangeInLightyears",T.TDouble _v26))) $ jumps_args_rangeInLightyears record
   , (\_v26 -> P.Just (5, ("opts",T.TByte _v26))) $ jumps_args_opts record
-  , (\_v26 -> P.Just (6, ("limit",T.TByte _v26))) $ jumps_args_limit record
   ]
 write_Jumps_args :: (T.Protocol p, T.Transport t) => p t -> Jumps_args -> P.IO ()
 write_Jumps_args oprot record = T.writeVal oprot $ from_Jumps_args record
@@ -175,12 +167,10 @@ encode_Jumps_args :: (T.Protocol p, T.Transport t) => p t -> Jumps_args -> LBS.B
 encode_Jumps_args oprot record = T.serializeVal oprot $ from_Jumps_args record
 to_Jumps_args :: T.ThriftVal -> Jumps_args
 to_Jumps_args (T.TStruct fields) = Jumps_args{
-  jumps_args_fromSolarSystemId = P.maybe (jumps_args_fromSolarSystemId default_Jumps_args) (\(_,_val30) -> (case _val30 of {T.TI32 _val31 -> _val31; _ -> P.error "wrong type"})) (Map.lookup (1) fields),
-  jumps_args_toSolarSystemId = P.maybe (jumps_args_toSolarSystemId default_Jumps_args) (\(_,_val30) -> (case _val30 of {T.TI32 _val32 -> _val32; _ -> P.error "wrong type"})) (Map.lookup (2) fields),
-  jumps_args_systems = P.maybe (jumps_args_systems default_Jumps_args) (\(_,_val30) -> (case _val30 of {T.TList _ _val33 -> (Vector.fromList $ P.map (\_v34 -> (case _v34 of {T.TStruct _val35 -> (NewEden_Types.to_SolarSystem (T.TStruct _val35)); _ -> P.error "wrong type"})) _val33); _ -> P.error "wrong type"})) (Map.lookup (3) fields),
-  jumps_args_reachInLightyears = P.maybe (jumps_args_reachInLightyears default_Jumps_args) (\(_,_val30) -> (case _val30 of {T.TDouble _val36 -> _val36; _ -> P.error "wrong type"})) (Map.lookup (4) fields),
-  jumps_args_opts = P.maybe (jumps_args_opts default_Jumps_args) (\(_,_val30) -> (case _val30 of {T.TByte _val37 -> _val37; _ -> P.error "wrong type"})) (Map.lookup (5) fields),
-  jumps_args_limit = P.maybe (jumps_args_limit default_Jumps_args) (\(_,_val30) -> (case _val30 of {T.TByte _val38 -> _val38; _ -> P.error "wrong type"})) (Map.lookup (6) fields)
+  jumps_args_fromSolarSystemId = P.maybe (jumps_args_fromSolarSystemId default_Jumps_args) (\(_,_val28) -> (case _val28 of {T.TI32 _val29 -> _val29; _ -> P.error "wrong type"})) (Map.lookup (1) fields),
+  jumps_args_toSolarSystemId = P.maybe (jumps_args_toSolarSystemId default_Jumps_args) (\(_,_val28) -> (case _val28 of {T.TI32 _val30 -> _val30; _ -> P.error "wrong type"})) (Map.lookup (2) fields),
+  jumps_args_rangeInLightyears = P.maybe (jumps_args_rangeInLightyears default_Jumps_args) (\(_,_val28) -> (case _val28 of {T.TDouble _val31 -> _val31; _ -> P.error "wrong type"})) (Map.lookup (4) fields),
+  jumps_args_opts = P.maybe (jumps_args_opts default_Jumps_args) (\(_,_val28) -> (case _val28 of {T.TByte _val32 -> _val32; _ -> P.error "wrong type"})) (Map.lookup (5) fields)
   }
 to_Jumps_args _ = P.error "not a struct"
 read_Jumps_args :: (T.Transport t, T.Protocol p) => p t -> P.IO Jumps_args
@@ -188,15 +178,13 @@ read_Jumps_args iprot = to_Jumps_args <$> T.readVal iprot (T.T_STRUCT typemap_Ju
 decode_Jumps_args :: (T.Protocol p, T.Transport t) => p t -> LBS.ByteString -> Jumps_args
 decode_Jumps_args iprot bs = to_Jumps_args $ T.deserializeVal iprot (T.T_STRUCT typemap_Jumps_args) bs
 typemap_Jumps_args :: T.TypeMap
-typemap_Jumps_args = Map.fromList [(1,("fromSolarSystemId",T.T_I32)),(2,("toSolarSystemId",T.T_I32)),(3,("systems",(T.T_LIST (T.T_STRUCT NewEden_Types.typemap_SolarSystem)))),(4,("reachInLightyears",T.T_DOUBLE)),(5,("opts",T.T_BYTE)),(6,("limit",T.T_BYTE))]
+typemap_Jumps_args = Map.fromList [(1,("fromSolarSystemId",T.T_I32)),(2,("toSolarSystemId",T.T_I32)),(4,("rangeInLightyears",T.T_DOUBLE)),(5,("opts",T.T_BYTE))]
 default_Jumps_args :: Jumps_args
 default_Jumps_args = Jumps_args{
   jumps_args_fromSolarSystemId = 0,
   jumps_args_toSolarSystemId = 0,
-  jumps_args_systems = Vector.empty,
-  jumps_args_reachInLightyears = 0,
-  jumps_args_opts = (1),
-  jumps_args_limit = (-1)}
+  jumps_args_rangeInLightyears = 0,
+  jumps_args_opts = (1)}
 data Jumps_result = Jumps_result  { jumps_result_success :: (Vector.Vector I.Int32)
   , jumps_result_le :: P.Maybe NewEden_Types.LogicalError
   } deriving (P.Show,P.Eq,G.Generic,TY.Typeable)
@@ -212,10 +200,10 @@ instance QC.Arbitrary Jumps_result where
     ]
 from_Jumps_result :: Jumps_result -> T.ThriftVal
 from_Jumps_result record = T.TStruct $ Map.fromList 
-  (let exns = M.catMaybes [ (\_v41 -> (1, ("le",NewEden_Types.from_LogicalError _v41))) <$> jumps_result_le record]
+  (let exns = M.catMaybes [ (\_v35 -> (1, ("le",NewEden_Types.from_LogicalError _v35))) <$> jumps_result_le record]
   in if P.not (P.null exns) then exns else M.catMaybes
-    [ (\_v41 -> P.Just (0, ("success",T.TList T.T_I32 $ P.map (\_v43 -> T.TI32 _v43) $ Vector.toList _v41))) $ jumps_result_success record
-    , (\_v41 -> (1, ("le",NewEden_Types.from_LogicalError _v41))) <$> jumps_result_le record
+    [ (\_v35 -> P.Just (0, ("success",T.TList T.T_I32 $ P.map (\_v37 -> T.TI32 _v37) $ Vector.toList _v35))) $ jumps_result_success record
+    , (\_v35 -> (1, ("le",NewEden_Types.from_LogicalError _v35))) <$> jumps_result_le record
     ]
     )
 write_Jumps_result :: (T.Protocol p, T.Transport t) => p t -> Jumps_result -> P.IO ()
@@ -224,8 +212,8 @@ encode_Jumps_result :: (T.Protocol p, T.Transport t) => p t -> Jumps_result -> L
 encode_Jumps_result oprot record = T.serializeVal oprot $ from_Jumps_result record
 to_Jumps_result :: T.ThriftVal -> Jumps_result
 to_Jumps_result (T.TStruct fields) = Jumps_result{
-  jumps_result_success = P.maybe (jumps_result_success default_Jumps_result) (\(_,_val45) -> (case _val45 of {T.TList _ _val46 -> (Vector.fromList $ P.map (\_v47 -> (case _v47 of {T.TI32 _val48 -> _val48; _ -> P.error "wrong type"})) _val46); _ -> P.error "wrong type"})) (Map.lookup (0) fields),
-  jumps_result_le = P.maybe (P.Nothing) (\(_,_val45) -> P.Just (case _val45 of {T.TStruct _val49 -> (NewEden_Types.to_LogicalError (T.TStruct _val49)); _ -> P.error "wrong type"})) (Map.lookup (1) fields)
+  jumps_result_success = P.maybe (jumps_result_success default_Jumps_result) (\(_,_val39) -> (case _val39 of {T.TList _ _val40 -> (Vector.fromList $ P.map (\_v41 -> (case _v41 of {T.TI32 _val42 -> _val42; _ -> P.error "wrong type"})) _val40); _ -> P.error "wrong type"})) (Map.lookup (0) fields),
+  jumps_result_le = P.maybe (P.Nothing) (\(_,_val39) -> P.Just (case _val39 of {T.TStruct _val43 -> (NewEden_Types.to_LogicalError (T.TStruct _val43)); _ -> P.error "wrong type"})) (Map.lookup (1) fields)
   }
 to_Jumps_result _ = P.error "not a struct"
 read_Jumps_result :: (T.Transport t, T.Protocol p) => p t -> P.IO Jumps_result
@@ -265,7 +253,7 @@ process_jumps (seqid, iprot, oprot, handler) = do
   (X.catch
     (X.catch
       (do
-        val <- Iface.jumps handler (jumps_args_fromSolarSystemId args) (jumps_args_toSolarSystemId args) (jumps_args_systems args) (jumps_args_reachInLightyears args) (jumps_args_opts args) (jumps_args_limit args)
+        val <- Iface.jumps handler (jumps_args_fromSolarSystemId args) (jumps_args_toSolarSystemId args) (jumps_args_rangeInLightyears args) (jumps_args_opts args)
         let res = default_Jumps_result{jumps_result_success = val}
         T.writeMessageBegin oprot ("jumps", T.M_REPLY, seqid)
         write_Jumps_result oprot res

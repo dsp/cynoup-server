@@ -82,7 +82,7 @@ instance QC.Arbitrary Systems_result where
     ]
 from_Systems_result :: Systems_result -> T.ThriftVal
 from_Systems_result record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v14 -> P.Just (0, ("success",T.TMap T.T_I32 (T.T_STRUCT NewEden_Types.typemap_SolarSystem) $ P.map (\(_k15,_v16) -> (T.TI32 _k15, NewEden_Types.from_SolarSystem _v16)) $ Map.toList _v14))) $ systems_result_success record
+  [ (\_v7 -> P.Just (0, ("success",T.TMap T.T_I32 (T.T_STRUCT NewEden_Types.typemap_SolarSystem) $ P.map (\(_k8,_v9) -> (T.TI32 _k8, NewEden_Types.from_SolarSystem _v9)) $ Map.toList _v7))) $ systems_result_success record
   ]
 write_Systems_result :: (T.Protocol p, T.Transport t) => p t -> Systems_result -> P.IO ()
 write_Systems_result oprot record = T.writeVal oprot $ from_Systems_result record
@@ -90,7 +90,7 @@ encode_Systems_result :: (T.Protocol p, T.Transport t) => p t -> Systems_result 
 encode_Systems_result oprot record = T.serializeVal oprot $ from_Systems_result record
 to_Systems_result :: T.ThriftVal -> Systems_result
 to_Systems_result (T.TStruct fields) = Systems_result{
-  systems_result_success = P.maybe (systems_result_success default_Systems_result) (\(_,_val18) -> (case _val18 of {T.TMap _ _ _val19 -> (Map.fromList $ P.map (\(_k21,_v20) -> ((case _k21 of {T.TI32 _val22 -> _val22; _ -> P.error "wrong type"}),(case _v20 of {T.TStruct _val23 -> (NewEden_Types.to_SolarSystem (T.TStruct _val23)); _ -> P.error "wrong type"}))) _val19); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
+  systems_result_success = P.maybe (systems_result_success default_Systems_result) (\(_,_val11) -> (case _val11 of {T.TMap _ _ _val12 -> (Map.fromList $ P.map (\(_k14,_v13) -> ((case _k14 of {T.TI32 _val15 -> _val15; _ -> P.error "wrong type"}),(case _v13 of {T.TStruct _val16 -> (NewEden_Types.to_SolarSystem (T.TStruct _val16)); _ -> P.error "wrong type"}))) _val12); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
   }
 to_Systems_result _ = P.error "not a struct"
 read_Systems_result :: (T.Transport t, T.Protocol p) => p t -> P.IO Systems_result
@@ -140,7 +140,7 @@ instance QC.Arbitrary Connection_result where
     ]
 from_Connection_result :: Connection_result -> T.ThriftVal
 from_Connection_result record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v31 -> P.Just (0, ("success",T.TMap T.T_I32 (T.T_STRUCT NewEden_Types.typemap_Connection) $ P.map (\(_k32,_v33) -> (T.TI32 _k32, NewEden_Types.from_Connection _v33)) $ Map.toList _v31))) $ connection_result_success record
+  [ (\_v24 -> P.Just (0, ("success",T.TMap T.T_I32 (T.T_STRUCT NewEden_Types.typemap_Connection) $ P.map (\(_k25,_v26) -> (T.TI32 _k25, NewEden_Types.from_Connection _v26)) $ Map.toList _v24))) $ connection_result_success record
   ]
 write_Connection_result :: (T.Protocol p, T.Transport t) => p t -> Connection_result -> P.IO ()
 write_Connection_result oprot record = T.writeVal oprot $ from_Connection_result record
@@ -148,7 +148,7 @@ encode_Connection_result :: (T.Protocol p, T.Transport t) => p t -> Connection_r
 encode_Connection_result oprot record = T.serializeVal oprot $ from_Connection_result record
 to_Connection_result :: T.ThriftVal -> Connection_result
 to_Connection_result (T.TStruct fields) = Connection_result{
-  connection_result_success = P.maybe (connection_result_success default_Connection_result) (\(_,_val35) -> (case _val35 of {T.TMap _ _ _val36 -> (Map.fromList $ P.map (\(_k38,_v37) -> ((case _k38 of {T.TI32 _val39 -> _val39; _ -> P.error "wrong type"}),(case _v37 of {T.TStruct _val40 -> (NewEden_Types.to_Connection (T.TStruct _val40)); _ -> P.error "wrong type"}))) _val36); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
+  connection_result_success = P.maybe (connection_result_success default_Connection_result) (\(_,_val28) -> (case _val28 of {T.TMap _ _ _val29 -> (Map.fromList $ P.map (\(_k31,_v30) -> ((case _k31 of {T.TI32 _val32 -> _val32; _ -> P.error "wrong type"}),(case _v30 of {T.TStruct _val33 -> (NewEden_Types.to_Connection (T.TStruct _val33)); _ -> P.error "wrong type"}))) _val29); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
   }
 to_Connection_result _ = P.error "not a struct"
 read_Connection_result :: (T.Transport t, T.Protocol p) => p t -> P.IO Connection_result
@@ -175,8 +175,8 @@ instance QC.Arbitrary Closest_args where
     ]
 from_Closest_args :: Closest_args -> T.ThriftVal
 from_Closest_args record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v43 -> P.Just (1, ("solarSystemId",T.TI32 _v43))) $ closest_args_solarSystemId record
-  , (\_v43 -> P.Just (2, ("coord",NewEden_Types.from_Coordinate _v43))) $ closest_args_coord record
+  [ (\_v36 -> P.Just (1, ("solarSystemId",T.TI32 _v36))) $ closest_args_solarSystemId record
+  , (\_v36 -> P.Just (2, ("coord",NewEden_Types.from_Coordinate _v36))) $ closest_args_coord record
   ]
 write_Closest_args :: (T.Protocol p, T.Transport t) => p t -> Closest_args -> P.IO ()
 write_Closest_args oprot record = T.writeVal oprot $ from_Closest_args record
@@ -184,8 +184,8 @@ encode_Closest_args :: (T.Protocol p, T.Transport t) => p t -> Closest_args -> L
 encode_Closest_args oprot record = T.serializeVal oprot $ from_Closest_args record
 to_Closest_args :: T.ThriftVal -> Closest_args
 to_Closest_args (T.TStruct fields) = Closest_args{
-  closest_args_solarSystemId = P.maybe (closest_args_solarSystemId default_Closest_args) (\(_,_val45) -> (case _val45 of {T.TI32 _val46 -> _val46; _ -> P.error "wrong type"})) (Map.lookup (1) fields),
-  closest_args_coord = P.maybe (closest_args_coord default_Closest_args) (\(_,_val45) -> (case _val45 of {T.TStruct _val47 -> (NewEden_Types.to_Coordinate (T.TStruct _val47)); _ -> P.error "wrong type"})) (Map.lookup (2) fields)
+  closest_args_solarSystemId = P.maybe (closest_args_solarSystemId default_Closest_args) (\(_,_val38) -> (case _val38 of {T.TI32 _val39 -> _val39; _ -> P.error "wrong type"})) (Map.lookup (1) fields),
+  closest_args_coord = P.maybe (closest_args_coord default_Closest_args) (\(_,_val38) -> (case _val38 of {T.TStruct _val40 -> (NewEden_Types.to_Coordinate (T.TStruct _val40)); _ -> P.error "wrong type"})) (Map.lookup (2) fields)
   }
 to_Closest_args _ = P.error "not a struct"
 read_Closest_args :: (T.Transport t, T.Protocol p) => p t -> P.IO Closest_args
@@ -210,7 +210,7 @@ instance QC.Arbitrary Closest_result where
     ]
 from_Closest_result :: Closest_result -> T.ThriftVal
 from_Closest_result record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v50 -> P.Just (0, ("success",T.TList (T.T_STRUCT NewEden_Types.typemap_Celestial) $ P.map (\_v52 -> NewEden_Types.from_Celestial _v52) $ Vector.toList _v50))) $ closest_result_success record
+  [ (\_v43 -> P.Just (0, ("success",T.TList (T.T_STRUCT NewEden_Types.typemap_Celestial) $ P.map (\_v45 -> NewEden_Types.from_Celestial _v45) $ Vector.toList _v43))) $ closest_result_success record
   ]
 write_Closest_result :: (T.Protocol p, T.Transport t) => p t -> Closest_result -> P.IO ()
 write_Closest_result oprot record = T.writeVal oprot $ from_Closest_result record
@@ -218,7 +218,7 @@ encode_Closest_result :: (T.Protocol p, T.Transport t) => p t -> Closest_result 
 encode_Closest_result oprot record = T.serializeVal oprot $ from_Closest_result record
 to_Closest_result :: T.ThriftVal -> Closest_result
 to_Closest_result (T.TStruct fields) = Closest_result{
-  closest_result_success = P.maybe (closest_result_success default_Closest_result) (\(_,_val54) -> (case _val54 of {T.TList _ _val55 -> (Vector.fromList $ P.map (\_v56 -> (case _v56 of {T.TStruct _val57 -> (NewEden_Types.to_Celestial (T.TStruct _val57)); _ -> P.error "wrong type"})) _val55); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
+  closest_result_success = P.maybe (closest_result_success default_Closest_result) (\(_,_val47) -> (case _val47 of {T.TList _ _val48 -> (Vector.fromList $ P.map (\_v49 -> (case _v49 of {T.TStruct _val50 -> (NewEden_Types.to_Celestial (T.TStruct _val50)); _ -> P.error "wrong type"})) _val48); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
   }
 to_Closest_result _ = P.error "not a struct"
 read_Closest_result :: (T.Transport t, T.Protocol p) => p t -> P.IO Closest_result
@@ -242,7 +242,7 @@ instance QC.Arbitrary ClosestCelestial_args where
     ]
 from_ClosestCelestial_args :: ClosestCelestial_args -> T.ThriftVal
 from_ClosestCelestial_args record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v60 -> P.Just (1, ("coord",NewEden_Types.from_Coordinate _v60))) $ closestCelestial_args_coord record
+  [ (\_v53 -> P.Just (1, ("coord",NewEden_Types.from_Coordinate _v53))) $ closestCelestial_args_coord record
   ]
 write_ClosestCelestial_args :: (T.Protocol p, T.Transport t) => p t -> ClosestCelestial_args -> P.IO ()
 write_ClosestCelestial_args oprot record = T.writeVal oprot $ from_ClosestCelestial_args record
@@ -250,7 +250,7 @@ encode_ClosestCelestial_args :: (T.Protocol p, T.Transport t) => p t -> ClosestC
 encode_ClosestCelestial_args oprot record = T.serializeVal oprot $ from_ClosestCelestial_args record
 to_ClosestCelestial_args :: T.ThriftVal -> ClosestCelestial_args
 to_ClosestCelestial_args (T.TStruct fields) = ClosestCelestial_args{
-  closestCelestial_args_coord = P.maybe (closestCelestial_args_coord default_ClosestCelestial_args) (\(_,_val62) -> (case _val62 of {T.TStruct _val63 -> (NewEden_Types.to_Coordinate (T.TStruct _val63)); _ -> P.error "wrong type"})) (Map.lookup (1) fields)
+  closestCelestial_args_coord = P.maybe (closestCelestial_args_coord default_ClosestCelestial_args) (\(_,_val55) -> (case _val55 of {T.TStruct _val56 -> (NewEden_Types.to_Coordinate (T.TStruct _val56)); _ -> P.error "wrong type"})) (Map.lookup (1) fields)
   }
 to_ClosestCelestial_args _ = P.error "not a struct"
 read_ClosestCelestial_args :: (T.Transport t, T.Protocol p) => p t -> P.IO ClosestCelestial_args
@@ -274,7 +274,7 @@ instance QC.Arbitrary ClosestCelestial_result where
     ]
 from_ClosestCelestial_result :: ClosestCelestial_result -> T.ThriftVal
 from_ClosestCelestial_result record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v66 -> P.Just (0, ("success",NewEden_Types.from_Celestial _v66))) $ closestCelestial_result_success record
+  [ (\_v59 -> P.Just (0, ("success",NewEden_Types.from_Celestial _v59))) $ closestCelestial_result_success record
   ]
 write_ClosestCelestial_result :: (T.Protocol p, T.Transport t) => p t -> ClosestCelestial_result -> P.IO ()
 write_ClosestCelestial_result oprot record = T.writeVal oprot $ from_ClosestCelestial_result record
@@ -282,7 +282,7 @@ encode_ClosestCelestial_result :: (T.Protocol p, T.Transport t) => p t -> Closes
 encode_ClosestCelestial_result oprot record = T.serializeVal oprot $ from_ClosestCelestial_result record
 to_ClosestCelestial_result :: T.ThriftVal -> ClosestCelestial_result
 to_ClosestCelestial_result (T.TStruct fields) = ClosestCelestial_result{
-  closestCelestial_result_success = P.maybe (closestCelestial_result_success default_ClosestCelestial_result) (\(_,_val68) -> (case _val68 of {T.TStruct _val69 -> (NewEden_Types.to_Celestial (T.TStruct _val69)); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
+  closestCelestial_result_success = P.maybe (closestCelestial_result_success default_ClosestCelestial_result) (\(_,_val61) -> (case _val61 of {T.TStruct _val62 -> (NewEden_Types.to_Celestial (T.TStruct _val62)); _ -> P.error "wrong type"})) (Map.lookup (0) fields)
   }
 to_ClosestCelestial_result _ = P.error "not a struct"
 read_ClosestCelestial_result :: (T.Transport t, T.Protocol p) => p t -> P.IO ClosestCelestial_result
@@ -309,8 +309,8 @@ instance QC.Arbitrary Distance_args where
     ]
 from_Distance_args :: Distance_args -> T.ThriftVal
 from_Distance_args record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v72 -> P.Just (1, ("celestial",NewEden_Types.from_Celestial _v72))) $ distance_args_celestial record
-  , (\_v72 -> P.Just (2, ("coord",NewEden_Types.from_Coordinate _v72))) $ distance_args_coord record
+  [ (\_v65 -> P.Just (1, ("celestial",NewEden_Types.from_Celestial _v65))) $ distance_args_celestial record
+  , (\_v65 -> P.Just (2, ("coord",NewEden_Types.from_Coordinate _v65))) $ distance_args_coord record
   ]
 write_Distance_args :: (T.Protocol p, T.Transport t) => p t -> Distance_args -> P.IO ()
 write_Distance_args oprot record = T.writeVal oprot $ from_Distance_args record
@@ -318,8 +318,8 @@ encode_Distance_args :: (T.Protocol p, T.Transport t) => p t -> Distance_args ->
 encode_Distance_args oprot record = T.serializeVal oprot $ from_Distance_args record
 to_Distance_args :: T.ThriftVal -> Distance_args
 to_Distance_args (T.TStruct fields) = Distance_args{
-  distance_args_celestial = P.maybe (distance_args_celestial default_Distance_args) (\(_,_val74) -> (case _val74 of {T.TStruct _val75 -> (NewEden_Types.to_Celestial (T.TStruct _val75)); _ -> P.error "wrong type"})) (Map.lookup (1) fields),
-  distance_args_coord = P.maybe (distance_args_coord default_Distance_args) (\(_,_val74) -> (case _val74 of {T.TStruct _val76 -> (NewEden_Types.to_Coordinate (T.TStruct _val76)); _ -> P.error "wrong type"})) (Map.lookup (2) fields)
+  distance_args_celestial = P.maybe (distance_args_celestial default_Distance_args) (\(_,_val67) -> (case _val67 of {T.TStruct _val68 -> (NewEden_Types.to_Celestial (T.TStruct _val68)); _ -> P.error "wrong type"})) (Map.lookup (1) fields),
+  distance_args_coord = P.maybe (distance_args_coord default_Distance_args) (\(_,_val67) -> (case _val67 of {T.TStruct _val69 -> (NewEden_Types.to_Coordinate (T.TStruct _val69)); _ -> P.error "wrong type"})) (Map.lookup (2) fields)
   }
 to_Distance_args _ = P.error "not a struct"
 read_Distance_args :: (T.Transport t, T.Protocol p) => p t -> P.IO Distance_args
@@ -344,7 +344,7 @@ instance QC.Arbitrary Distance_result where
     ]
 from_Distance_result :: Distance_result -> T.ThriftVal
 from_Distance_result record = T.TStruct $ Map.fromList $ M.catMaybes
-  [ (\_v79 -> P.Just (0, ("success",T.TDouble _v79))) $ distance_result_success record
+  [ (\_v72 -> P.Just (0, ("success",T.TDouble _v72))) $ distance_result_success record
   ]
 write_Distance_result :: (T.Protocol p, T.Transport t) => p t -> Distance_result -> P.IO ()
 write_Distance_result oprot record = T.writeVal oprot $ from_Distance_result record
@@ -352,7 +352,7 @@ encode_Distance_result :: (T.Protocol p, T.Transport t) => p t -> Distance_resul
 encode_Distance_result oprot record = T.serializeVal oprot $ from_Distance_result record
 to_Distance_result :: T.ThriftVal -> Distance_result
 to_Distance_result (T.TStruct fields) = Distance_result{
-  distance_result_success = P.maybe (distance_result_success default_Distance_result) (\(_,_val81) -> (case _val81 of {T.TDouble _val82 -> _val82; _ -> P.error "wrong type"})) (Map.lookup (0) fields)
+  distance_result_success = P.maybe (distance_result_success default_Distance_result) (\(_,_val74) -> (case _val74 of {T.TDouble _val75 -> _val75; _ -> P.error "wrong type"})) (Map.lookup (0) fields)
   }
 to_Distance_result _ = P.error "not a struct"
 read_Distance_result :: (T.Transport t, T.Protocol p) => p t -> P.IO Distance_result

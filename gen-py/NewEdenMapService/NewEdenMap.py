@@ -16,13 +16,24 @@ from thrift.transport import TTransport
 
 class Iface(object):
     def systems(self):
+        """
+        Returns all system in the static dump
+        """
         pass
 
     def connection(self):
+        """
+        Returns all connections in the static dump
+        """
         pass
 
     def closest(self, solarSystemId, coord):
         """
+        Return the the two celestials which are in line with the given coordinate,
+        or are closest to being in line.
+
+        @note: This implementation is experimental and might not yield correct results.
+
         Parameters:
          - solarSystemId
          - coord
@@ -31,6 +42,10 @@ class Iface(object):
 
     def closestCelestial(self, coord):
         """
+        Closest celestial from a coordinate
+
+        @note NOT YET IMPLEMENTED!
+
         Parameters:
          - coord
         """
@@ -38,6 +53,10 @@ class Iface(object):
 
     def distance(self, celestial, coord):
         """
+        Distance from a celestial to a coordinate
+
+        @note NOT YET IMPLMENETED
+
         Parameters:
          - celestial
          - coord
@@ -53,6 +72,9 @@ class Client(Iface):
         self._seqid = 0
 
     def systems(self):
+        """
+        Returns all system in the static dump
+        """
         self.send_systems()
         return self.recv_systems()
 
@@ -79,6 +101,9 @@ class Client(Iface):
         raise TApplicationException(TApplicationException.MISSING_RESULT, "systems failed: unknown result")
 
     def connection(self):
+        """
+        Returns all connections in the static dump
+        """
         self.send_connection()
         return self.recv_connection()
 
@@ -106,6 +131,11 @@ class Client(Iface):
 
     def closest(self, solarSystemId, coord):
         """
+        Return the the two celestials which are in line with the given coordinate,
+        or are closest to being in line.
+
+        @note: This implementation is experimental and might not yield correct results.
+
         Parameters:
          - solarSystemId
          - coord
@@ -139,6 +169,10 @@ class Client(Iface):
 
     def closestCelestial(self, coord):
         """
+        Closest celestial from a coordinate
+
+        @note NOT YET IMPLEMENTED!
+
         Parameters:
          - coord
         """
@@ -170,6 +204,10 @@ class Client(Iface):
 
     def distance(self, celestial, coord):
         """
+        Distance from a celestial to a coordinate
+
+        @note NOT YET IMPLMENETED
+
         Parameters:
          - celestial
          - coord

@@ -17,6 +17,26 @@ from thrift.transport import TTransport
 class Iface(object):
     def route(self, fromSolarSystemId, toSolarSystemId, connections, opts):
         """
+        Find the shortest route between two solar systems
+
+        Find the shortest routes between two solar system. Additional
+        connections between solar systems can be placed. Available
+        options are OPTION_PREFER_SHORTEST, OPTION_PREFER_SAFER or
+        OPTION_PREFER_HIGHSEC.
+
+        Additional connections can contain a 'weight'. Every connection has a weight
+        of 1 by default. Lower values will result in the connection being preferred.
+        Higher numbers will make it less preferred. E.g. weight 2 means if your shortet
+        standard route is 3 jumps we are picking the additional provided connection,
+        if it's 2 we pick the original connection.
+
+        @param i32 fromSolarSystem - The system id of the start system.
+        @param i32 toSolarSystemID - The system id of the end system.
+        @param list connections - A list of additional connections, not
+                                  found in the static dump (e.g wormhole connections)
+        @param i8 opts  - Options on how to chose the routes.
+        @return list - A list of solar system ids, from start to the end system.
+
         Parameters:
          - fromSolarSystemId
          - toSolarSystemId
@@ -25,15 +45,20 @@ class Iface(object):
         """
         pass
 
-    def jumps(self, fromSolarSystemId, toSolarSystemId, systems, reachInLightyears, opts, limit):
+    def jumps(self, fromSolarSystemId, toSolarSystemId, rangeInLightyears, opts):
         """
+        Find the shorteest jump routes
+
+        @param i32 fromSolarSystemId - The system id of the start system.
+        @param i32 toSolarSystemID - The system id of the end system.
+        @param double rangeInLightyears - The jump range in lightyears, e.g. 5.0 for a Nyx.
+        @param i8 opts - Various options.
+
         Parameters:
          - fromSolarSystemId
          - toSolarSystemId
-         - systems
-         - reachInLightyears
+         - rangeInLightyears
          - opts
-         - limit
         """
         pass
 
@@ -47,6 +72,26 @@ class Client(Iface):
 
     def route(self, fromSolarSystemId, toSolarSystemId, connections, opts):
         """
+        Find the shortest route between two solar systems
+
+        Find the shortest routes between two solar system. Additional
+        connections between solar systems can be placed. Available
+        options are OPTION_PREFER_SHORTEST, OPTION_PREFER_SAFER or
+        OPTION_PREFER_HIGHSEC.
+
+        Additional connections can contain a 'weight'. Every connection has a weight
+        of 1 by default. Lower values will result in the connection being preferred.
+        Higher numbers will make it less preferred. E.g. weight 2 means if your shortet
+        standard route is 3 jumps we are picking the additional provided connection,
+        if it's 2 we pick the original connection.
+
+        @param i32 fromSolarSystem - The system id of the start system.
+        @param i32 toSolarSystemID - The system id of the end system.
+        @param list connections - A list of additional connections, not
+                                  found in the static dump (e.g wormhole connections)
+        @param i8 opts  - Options on how to chose the routes.
+        @return list - A list of solar system ids, from start to the end system.
+
         Parameters:
          - fromSolarSystemId
          - toSolarSystemId
@@ -84,28 +129,31 @@ class Client(Iface):
             raise result.le
         raise TApplicationException(TApplicationException.MISSING_RESULT, "route failed: unknown result")
 
-    def jumps(self, fromSolarSystemId, toSolarSystemId, systems, reachInLightyears, opts, limit):
+    def jumps(self, fromSolarSystemId, toSolarSystemId, rangeInLightyears, opts):
         """
+        Find the shorteest jump routes
+
+        @param i32 fromSolarSystemId - The system id of the start system.
+        @param i32 toSolarSystemID - The system id of the end system.
+        @param double rangeInLightyears - The jump range in lightyears, e.g. 5.0 for a Nyx.
+        @param i8 opts - Various options.
+
         Parameters:
          - fromSolarSystemId
          - toSolarSystemId
-         - systems
-         - reachInLightyears
+         - rangeInLightyears
          - opts
-         - limit
         """
-        self.send_jumps(fromSolarSystemId, toSolarSystemId, systems, reachInLightyears, opts, limit)
+        self.send_jumps(fromSolarSystemId, toSolarSystemId, rangeInLightyears, opts)
         return self.recv_jumps()
 
-    def send_jumps(self, fromSolarSystemId, toSolarSystemId, systems, reachInLightyears, opts, limit):
+    def send_jumps(self, fromSolarSystemId, toSolarSystemId, rangeInLightyears, opts):
         self._oprot.writeMessageBegin('jumps', TMessageType.CALL, self._seqid)
         args = jumps_args()
         args.fromSolarSystemId = fromSolarSystemId
         args.toSolarSystemId = toSolarSystemId
-        args.systems = systems
-        args.reachInLightyears = reachInLightyears
+        args.rangeInLightyears = rangeInLightyears
         args.opts = opts
-        args.limit = limit
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
@@ -178,7 +226,7 @@ class Processor(Iface, TProcessor):
         iprot.readMessageEnd()
         result = jumps_result()
         try:
-            result.success = self._handler.jumps(args.fromSolarSystemId, args.toSolarSystemId, args.systems, args.reachInLightyears, args.opts, args.limit)
+            result.success = self._handler.jumps(args.fromSolarSystemId, args.toSolarSystemId, args.rangeInLightyears, args.opts)
             msg_type = TMessageType.REPLY
         except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
             raise
@@ -387,29 +435,24 @@ class jumps_args(object):
     Attributes:
      - fromSolarSystemId
      - toSolarSystemId
-     - systems
-     - reachInLightyears
+     - rangeInLightyears
      - opts
-     - limit
     """
 
     thrift_spec = (
         None,  # 0
         (1, TType.I32, 'fromSolarSystemId', None, None, ),  # 1
         (2, TType.I32, 'toSolarSystemId', None, None, ),  # 2
-        (3, TType.LIST, 'systems', (TType.STRUCT, (NewEden.ttypes.SolarSystem, NewEden.ttypes.SolarSystem.thrift_spec), False), None, ),  # 3
-        (4, TType.DOUBLE, 'reachInLightyears', None, None, ),  # 4
+        None,  # 3
+        (4, TType.DOUBLE, 'rangeInLightyears', None, None, ),  # 4
         (5, TType.BYTE, 'opts', None, 1, ),  # 5
-        (6, TType.BYTE, 'limit', None, -1, ),  # 6
     )
 
-    def __init__(self, fromSolarSystemId=None, toSolarSystemId=None, systems=None, reachInLightyears=None, opts=thrift_spec[5][4], limit=thrift_spec[6][4],):
+    def __init__(self, fromSolarSystemId=None, toSolarSystemId=None, rangeInLightyears=None, opts=thrift_spec[5][4],):
         self.fromSolarSystemId = fromSolarSystemId
         self.toSolarSystemId = toSolarSystemId
-        self.systems = systems
-        self.reachInLightyears = reachInLightyears
+        self.rangeInLightyears = rangeInLightyears
         self.opts = opts
-        self.limit = limit
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -430,30 +473,14 @@ class jumps_args(object):
                     self.toSolarSystemId = iprot.readI32()
                 else:
                     iprot.skip(ftype)
-            elif fid == 3:
-                if ftype == TType.LIST:
-                    self.systems = []
-                    (_etype17, _size14) = iprot.readListBegin()
-                    for _i18 in range(_size14):
-                        _elem19 = NewEden.ttypes.SolarSystem()
-                        _elem19.read(iprot)
-                        self.systems.append(_elem19)
-                    iprot.readListEnd()
-                else:
-                    iprot.skip(ftype)
             elif fid == 4:
                 if ftype == TType.DOUBLE:
-                    self.reachInLightyears = iprot.readDouble()
+                    self.rangeInLightyears = iprot.readDouble()
                 else:
                     iprot.skip(ftype)
             elif fid == 5:
                 if ftype == TType.BYTE:
                     self.opts = iprot.readByte()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 6:
-                if ftype == TType.BYTE:
-                    self.limit = iprot.readByte()
                 else:
                     iprot.skip(ftype)
             else:
@@ -474,24 +501,13 @@ class jumps_args(object):
             oprot.writeFieldBegin('toSolarSystemId', TType.I32, 2)
             oprot.writeI32(self.toSolarSystemId)
             oprot.writeFieldEnd()
-        if self.systems is not None:
-            oprot.writeFieldBegin('systems', TType.LIST, 3)
-            oprot.writeListBegin(TType.STRUCT, len(self.systems))
-            for iter20 in self.systems:
-                iter20.write(oprot)
-            oprot.writeListEnd()
-            oprot.writeFieldEnd()
-        if self.reachInLightyears is not None:
-            oprot.writeFieldBegin('reachInLightyears', TType.DOUBLE, 4)
-            oprot.writeDouble(self.reachInLightyears)
+        if self.rangeInLightyears is not None:
+            oprot.writeFieldBegin('rangeInLightyears', TType.DOUBLE, 4)
+            oprot.writeDouble(self.rangeInLightyears)
             oprot.writeFieldEnd()
         if self.opts is not None:
             oprot.writeFieldBegin('opts', TType.BYTE, 5)
             oprot.writeByte(self.opts)
-            oprot.writeFieldEnd()
-        if self.limit is not None:
-            oprot.writeFieldBegin('limit', TType.BYTE, 6)
-            oprot.writeByte(self.limit)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -539,10 +555,10 @@ class jumps_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype24, _size21) = iprot.readListBegin()
-                    for _i25 in range(_size21):
-                        _elem26 = iprot.readI32()
-                        self.success.append(_elem26)
+                    (_etype17, _size14) = iprot.readListBegin()
+                    for _i18 in range(_size14):
+                        _elem19 = iprot.readI32()
+                        self.success.append(_elem19)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -565,8 +581,8 @@ class jumps_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.I32, len(self.success))
-            for iter27 in self.success:
-                oprot.writeI32(iter27)
+            for iter20 in self.success:
+                oprot.writeI32(iter20)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         if self.le is not None:

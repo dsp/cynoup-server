@@ -61,14 +61,14 @@ recv_route ip = do
   T.readMessageEnd ip
   P.maybe (P.return ()) X.throw (route_result_le res)
   P.return $ route_result_success res
-jumps (ip,op) arg_fromSolarSystemId arg_toSolarSystemId arg_systems arg_reachInLightyears arg_opts arg_limit = do
-  send_jumps op arg_fromSolarSystemId arg_toSolarSystemId arg_systems arg_reachInLightyears arg_opts arg_limit
+jumps (ip,op) arg_fromSolarSystemId arg_toSolarSystemId arg_rangeInLightyears arg_opts = do
+  send_jumps op arg_fromSolarSystemId arg_toSolarSystemId arg_rangeInLightyears arg_opts
   recv_jumps ip
-send_jumps op arg_fromSolarSystemId arg_toSolarSystemId arg_systems arg_reachInLightyears arg_opts arg_limit = do
+send_jumps op arg_fromSolarSystemId arg_toSolarSystemId arg_rangeInLightyears arg_opts = do
   seq <- seqid
   seqn <- R.readIORef seq
   T.writeMessageBegin op ("jumps", T.M_CALL, seqn)
-  write_Jumps_args op (Jumps_args{jumps_args_fromSolarSystemId=arg_fromSolarSystemId,jumps_args_toSolarSystemId=arg_toSolarSystemId,jumps_args_systems=arg_systems,jumps_args_reachInLightyears=arg_reachInLightyears,jumps_args_opts=arg_opts,jumps_args_limit=arg_limit})
+  write_Jumps_args op (Jumps_args{jumps_args_fromSolarSystemId=arg_fromSolarSystemId,jumps_args_toSolarSystemId=arg_toSolarSystemId,jumps_args_rangeInLightyears=arg_rangeInLightyears,jumps_args_opts=arg_opts})
   T.writeMessageEnd op
   T.tFlush (T.getTransport op)
 recv_jumps ip = do

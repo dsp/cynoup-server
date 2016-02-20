@@ -14,6 +14,8 @@ from thrift.transport import TTransport
 
 class Coordinate(object):
     """
+    Represents a coordinate in New Eden. The coordinate is absolute.
+
     Attributes:
      - x
      - y
@@ -98,6 +100,10 @@ class Coordinate(object):
 
 class SolarSystem(object):
     """
+    Represents a simple solar system
+
+    The solar system system ID matches the ids from the static dump or CREST.
+
     Attributes:
      - systemId
      - name
@@ -189,6 +195,13 @@ class SolarSystem(object):
 
 class Connection(object):
     """
+    Represents a connection between two solar systems
+
+    Represents a solar system connection. A weight can be given for when passing
+    new connections to the a routing algorithms to make them harder to reach.
+    Weights < 1 are easier than average to reach, weights > 1 are proportional harder
+    to reach.
+
     Attributes:
      - fromSystemId
      - toSystemId
@@ -345,6 +358,9 @@ class Celestial(object):
 
 class LogicalError(TException):
     """
+    Thrown in the event of a request that makes no sense in the
+    New Eden universe (e.g. non matching solar system ids)
+
     Attributes:
      - errno
      - message

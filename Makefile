@@ -8,6 +8,7 @@ thrift: $(interfaces)
 	echo $(interfaces) | xargs -n1 $(THRIFT) --gen py 
 	echo $(interfaces) | xargs -n1 $(THRIFT) --gen hs
 	echo $(interfaces) | xargs -n1 $(THRIFT) --gen php
+	echo $(interfaces) | xargs -n1 $(THRIFT) --gen html
 
 docker-images:
 	stack install --local-bin-path=docker/routing-server

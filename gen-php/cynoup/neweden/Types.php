@@ -17,6 +17,9 @@ use Thrift\Protocol\TBinaryProtocolAccelerated;
 use Thrift\Exception\TApplicationException;
 
 
+/**
+ * Represents a coordinate in New Eden. The coordinate is absolute.
+ */
 class Coordinate {
   static $_TSPEC;
 
@@ -138,6 +141,11 @@ class Coordinate {
 
 }
 
+/**
+ * Represents a simple solar system
+ * 
+ * The solar system system ID matches the ids from the static dump or CREST.
+ */
 class SolarSystem {
   static $_TSPEC;
 
@@ -259,6 +267,14 @@ class SolarSystem {
 
 }
 
+/**
+ * Represents a connection between two solar systems
+ * 
+ * Represents a solar system connection. A weight can be given for when passing
+ * new connections to the a routing algorithms to make them harder to reach.
+ * Weights < 1 are easier than average to reach, weights > 1 are proportional harder
+ * to reach.
+ */
 class Connection {
   static $_TSPEC;
 
@@ -478,6 +494,10 @@ class Celestial {
 
 }
 
+/**
+ * Thrown in the event of a request that makes no sense in the
+ * New Eden universe (e.g. non matching solar system ids)
+ */
 class LogicalError extends TException {
   static $_TSPEC;
 
