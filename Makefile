@@ -12,8 +12,8 @@ thrift: $(interfaces)
 docker-images:
 	stack install --local-bin-path=docker/routing-server
 	stack install --local-bin-path=docker/map-server
-	ln sqlite-latest.sqlite  docker/routing-server
-	ln sqlite-latest.sqlite  docker/map-server
+	test -f docker/routing-server/sqlite-latest.sqlite || ln sqlite-latest.sqlite  docker/routing-server
+	test -f docker/map-server/sqlite-latest.sqlite || ln sqlite-latest.sqlite  docker/map-server
 	docker build -t cynoup-routing-server:latest docker/routing-server
 	docker build -t cynoup-map-server:latest docker/map-server
 
