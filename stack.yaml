@@ -1,0 +1,5 @@
+packages: 
+- '.'
+- 'thrift/lib/hs'
+resolver: nightly-2016-02-20
+system-ghc: false
