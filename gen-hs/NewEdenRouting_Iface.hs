@@ -43,5 +43,5 @@ import qualified NewEden_Types
 import NewEdenRoutingService_Types
 
 class NewEdenRouting_Iface a where
-  route :: a -> I.Int32 -> I.Int32 -> (Vector.Vector NewEden_Types.Connection) -> I.Int8 -> P.IO (Vector.Vector I.Int32)
+  route :: a -> I.Int32 -> I.Int32 -> I.Int8 -> P.IO (Vector.Vector I.Int32)
   jumps :: a -> I.Int32 -> I.Int32 -> P.Double -> I.Int8 -> P.IO (Vector.Vector I.Int32)

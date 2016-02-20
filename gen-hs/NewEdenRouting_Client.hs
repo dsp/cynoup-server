@@ -44,14 +44,14 @@ import qualified NewEden_Types
 import NewEdenRoutingService_Types
 import NewEdenRouting
 seqid = R.newIORef 0
-route (ip,op) arg_fromSolarSystemId arg_toSolarSystemId arg_connections arg_opts = do
-  send_route op arg_fromSolarSystemId arg_toSolarSystemId arg_connections arg_opts
+route (ip,op) arg_fromSolarSystemId arg_toSolarSystemId arg_opts = do
+  send_route op arg_fromSolarSystemId arg_toSolarSystemId arg_opts
   recv_route ip
-send_route op arg_fromSolarSystemId arg_toSolarSystemId arg_connections arg_opts = do
+send_route op arg_fromSolarSystemId arg_toSolarSystemId arg_opts = do
   seq <- seqid
   seqn <- R.readIORef seq
   T.writeMessageBegin op ("route", T.M_CALL, seqn)
-  write_Route_args op (Route_args{route_args_fromSolarSystemId=arg_fromSolarSystemId,route_args_toSolarSystemId=arg_toSolarSystemId,route_args_connections=arg_connections,route_args_opts=arg_opts})
+  write_Route_args op (Route_args{route_args_fromSolarSystemId=arg_fromSolarSystemId,route_args_toSolarSystemId=arg_toSolarSystemId,route_args_opts=arg_opts})
   T.writeMessageEnd op
   T.tFlush (T.getTransport op)
 recv_route ip = do

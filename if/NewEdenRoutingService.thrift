@@ -26,33 +26,37 @@ service NewEdenRouting
      * Higher numbers will make it less preferred. E.g. weight 2 means if your shortet
      * standard route is 3 jumps we are picking the additional provided connection,
      * if it's 2 we pick the original connection.
-     * 
-     * @param i32 fromSolarSystem - The system id of the start system.
-     * @param i32 toSolarSystemID - The system id of the end system.
-     * @param list connections - A list of additional connections, not
-     *                           found in the static dump (e.g wormhole connections)
-     * @param i8 opts  - Options on how to chose the routes.
-     * @return list - A list of solar system ids, from start to the end system.
      */
     Route route(
+        /** The system id to start from */
         1: i32 fromSolarSystemId,
+
+        /** The system id to go to */
         2: i32 toSolarSystemId,
+
+        /** A list of additional connections, not found in the static dump (e.g. wormholes).
         3: list<NewEden.Connection> connections,
+
+        /** Options on how to choose routes */
         4: i8 opts = OPTION_PREFER_SHORTEST)
+
         throws (1: NewEden.LogicalError le),
 
     /**
-     * Find the shorteest jump routes
-     *
-     * @param i32 fromSolarSystemId - The system id of the start system.
-     * @param i32 toSolarSystemID - The system id of the end system.
-     * @param double rangeInLightyears - The jump range in lightyears, e.g. 5.0 for a Nyx.
-     * @param i8 opts - Various options.
+     * Find the shorteest jump routes.
      */
     Route jumps(
+        /** The system id to start from */
         1: i32 fromSolarSystemId,
+
+        /** The system id to go to */
         2: i32 toSolarSystemId,
+
+        /** Jump range in lightyears (e.g. 5.0 for a Nyx) */
         4: double rangeInLightyears,
+
+        /** Options on how to choose routes */
         5: i8 opts = OPTION_PREFER_SHORTEST)
+
         throws (1: NewEden.LogicalError le),
 }
