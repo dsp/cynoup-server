@@ -1,18 +1,20 @@
 {-# LANGUAGE TemplateHaskell #-}
-module TestLib
-    ( testLibSuite
-    ) where
+module Main where
 
-import NewEden
+import NewEden.Routing
+import NewEden.Functions
+import NewEden.Types
 import Control.Monad
 import Debug.Trace
 
-import qualified Data.Map as M
+import qualified Data.HashMap.Strict as M
 import qualified Data.Set as S
 import Data.Maybe (maybe, isJust, fromJust)
 import Data.List (nub)
 import Test.QuickCheck
 import Test.QuickCheck.All
+
+import System.Exit (exitFailure, exitSuccess)
 
 
 instance Arbitrary Coordinate where
@@ -83,8 +85,8 @@ prop_fromConnectionList xs =
 
 weightfn _ _ = 1.0
 distancefn _ = 0.0
-prop_dijkstra2 u a b =
-    maybe True ((> 0) . length) (dijkstra u weightfn distancefn (a,b))
+--prop_dijkstra2 u a b =
+--    maybe True ((> 0) . length) (dijkstra u weightfn distancefn (a,b))
 
 prop_dijkstra u =
     length (solarSystems u) >= 3 ==>
@@ -100,3 +102,11 @@ prop_dijkstra u =
 
 return []
 testLibSuite = $quickCheckAll
+
+main :: IO ()
+main = do
+    ret <- testLibSuite
+    case ret of
+        True -> exitSuccess
+        otherwise -> exitFailure
+

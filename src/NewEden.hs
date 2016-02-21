@@ -15,8 +15,6 @@ module NewEden
     -- Database
     , generateNewEden
 
-    -- TODO: check how to expose this to tests only.
-    , fromConnectionList
     , insertConnections
 
     -- Routing

@@ -79,7 +79,7 @@ generateNewEden dbPath =
                 -- Convert a row to a solar system
                 toSolarSystem :: [SqlValue] -> IO Solarsystem
                 toSolarSystem [id, name, x, y, z, sec, regid, regname] = do
-                    celestials <- unsafeInterleaveIO $ genCelestials dbPath id
+                    --celestials <- unsafeInterleaveIO $ genCelestials dbPath id
                     return $ Solarsystem {
                         systemId = (fromSql id) :: Id,
                         systemName = (fromSql name) :: String,
@@ -93,7 +93,7 @@ generateNewEden dbPath =
                             regionId = (fromSql regid) :: Id,
                             regionName = (fromSql regname) :: String
                         },
-                        systemCelestials = celestials
+                        systemCelestials = [] -- celestials
                     }
 
         toConnections :: LookupMap
