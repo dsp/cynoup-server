@@ -119,6 +119,7 @@ test-suite cynoup-hunit
   main-is:             TestHUnit.hs
   build-depends:       base
                      , containers
+                     , directory
                      , hashable
                      , HDBC
                      , HDBC-sqlite3

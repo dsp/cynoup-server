@@ -7,7 +7,9 @@ import qualified Data.List as L
 import qualified Data.Set as S
 import qualified Data.Map as M
 import Data.Maybe
+import Control.Monad (when)
 
+import System.Directory
 import System.Environment (lookupEnv)
 import System.Exit(exitFailure, exitSuccess)
 import Test.HUnit
@@ -71,9 +73,14 @@ tests graph = test
 main = do
     env <- lookupEnv "CYNOUP_TESTDB"
     let dbPath = maybe "sqlite-latest.sqlite" id env
+
+    exists <- doesFileExist dbPath
+    when (not exists)
+        exitFailure
+
     graph <- D.generateNewEden dbPath
     (Counts cases tried errors failures) <- runTestTT (tests graph)
-    if (errors + failures) > 0 then
+    when ((errors + failures) > 0)
         exitFailure
-    else
-        exitSuccess
+
+    exitSuccess
