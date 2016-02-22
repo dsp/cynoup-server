@@ -92,9 +92,9 @@ prop_dijkstra u =
     length (solarSystems u) >= 3 ==>
         let
             [a, b, c] = take 3 (S.toList (solarSystems u))
-            direct = dijkstra u weightfn distancefn (a,c)
-            path1 = dijkstra u weightfn distancefn (a,b)
-            path2 = dijkstra u weightfn distancefn (b,c)
+            direct = dijkstra u weightfn adjacentSystems (a,c)
+            path1 = dijkstra u weightfn adjacentSystems (a,b)
+            path2 = dijkstra u weightfn adjacentSystems (b,c)
         in
             (length direct) <= (length path1) + (length path2)
             || any null [path1, path2]

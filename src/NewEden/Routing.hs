@@ -9,11 +9,13 @@ Portability : POSIX
 A shortest path implementation for solar systems in side Eve Onlines galaxy.
 -}
 module NewEden.Routing
-    ( dijkstra
+    ( adjacentSystems
+    , dijkstra
+    , equalDistance
+    , jumpDistance
     , preferHighsec
     , preferSafer
     , preferShorter
-    , preferShortestDistanceToDestination
     ) where
 
 import NewEden.Types
@@ -40,8 +42,11 @@ prefer fn a b = fn $ min (systemSecurity a) (systemSecurity b)
 preferShorter :: Solarsystem -> Solarsystem -> Double
 preferShorter _ _ = 1.0
 
-preferShortestDistanceToDestination :: Solarsystem -> Double
-preferShortestDistanceToDestination _ = 0.0
+
+-- TODO: I think the naming is wrong, we want to fix that.
+equalDistance :: Solarsystem -> Double
+equalDistance _ = 0.0
+
 
 preferSafer :: Solarsystem -> Solarsystem -> Double
 preferSafer =
@@ -65,6 +70,11 @@ preferHighsec =
             | otherwise = 1.0
 
 
+jumpDistance :: Solarsystem -> Solarsystem -> Double
+jumpDistance a b = norm (diff a b)
+
+adjacentSystems u s = (adjacentList u M.! s)
+
 -- | An implementation of Dijkstra's shortes path algorithm. The distance
 -- function determines the distance between two solarsystems. The most common
 -- application is using the constant 1.0 for system jumps. For capital jumps
@@ -77,10 +87,19 @@ preferHighsec =
 -- > dijksta u (\_ _ -> 1.0) (systems ! "Faspera", systems Map.! "Jita")
 dijkstra :: Universe
          -> DistanceFn
-         -> EstimationFn
+         -> NeighbourFn
          -> (Solarsystem, Solarsystem)
          -> Maybe [Solarsystem]
-dijkstra universe fn hn (from, to)
+dijkstra u distFn neighbourFn (from, to) =
+    astar u distFn equalDistance neighbourFn(from, to)
+
+astar :: Universe
+      -> DistanceFn
+      -> EstimationFn
+      -> NeighbourFn
+      -> (Solarsystem, Solarsystem)
+      -> Maybe [Solarsystem]
+astar universe distFn estFn neighbourFn (from, to)
   -- Invariant: everything needs to exist in theu niverse
   | NE.notMember from universe ||
     NE.notMember to universe = Nothing
@@ -94,7 +113,7 @@ dijkstra universe fn hn (from, to)
 
     suchThat $
         reverse $
-            constructPaths to $ evalState dijkstra' state
+            constructPaths to $ evalState astar' state
 
     where
         constructPaths :: Solarsystem
@@ -105,8 +124,8 @@ dijkstra universe fn hn (from, to)
             | M.member v paths = v : constructPaths (paths M.! v) paths
             | otherwise = []
 
-        dijkstra' :: State DijkstraState ReversePath
-        dijkstra' = do
+        astar' :: State DijkstraState ReversePath
+        astar' = do
             mnext <- nextSolarsystem
             case mnext of
                 -- Return path if the heap is empty
@@ -120,9 +139,10 @@ dijkstra universe fn hn (from, to)
                     ---- | to == current -> do gets usePath
                     do
                         forM_
-                            (adjacentList universe M.! current)
+--                            (adjacentList universe M.! current)
+                            (neighbourFn universe current)
                             (relax current)
-                        dijkstra'
+                        astar'
 
             where
                 usePath (_,_,p) = p
@@ -132,7 +152,7 @@ dijkstra universe fn hn (from, to)
                       -> State DijkstraState ()
                 relax cur next = do
                     (h, d, p) <- get
-                    let alt = (d M.! cur) + (fn cur next) + (hn next)
+                    let alt = (d M.! cur) + (distFn cur next) + (estFn next)
                     let nextDist = M.lookup next d
                     if isNothing nextDist || alt < fromJust nextDist then
                         put (H.insert (alt, next) h, -- add to queue

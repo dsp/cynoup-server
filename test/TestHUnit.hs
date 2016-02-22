@@ -33,7 +33,7 @@ tests graph = test
             let res = R.dijkstra
                         graph
                         R.preferShorter
-                        R.preferShortestDistanceToDestination 
+                        R.adjacentSystems
                         (fasp, fera)
             let names = toNames graph res
             assertEqual ("Lenght Fasp -> Fera is not correct" ++ (show names)) 4 (length names)
@@ -44,7 +44,7 @@ tests graph = test
             let res = R.dijkstra
                         graph
                         R.preferShorter
-                        R.preferShortestDistanceToDestination 
+                        R.adjacentSystems
                         (fasp, jita)
             let names = toNames graph res
             assertEqual "Lenght Fasp -> Jita is not correct" 28 (length names)
@@ -54,7 +54,7 @@ tests graph = test
             let res = R.dijkstra
                         graph
                         R.preferShorter
-                        R.preferShortestDistanceToDestination 
+                        R.adjacentSystems
                         (fasp, fasp)
             let names = toNames graph res
             assertEqual "Lenght Fasp -> Fasp is not correct" 1 (length names)
@@ -65,7 +65,7 @@ tests graph = test
             let res = R.dijkstra
                         graph
                         R.preferShorter
-                        R.preferShortestDistanceToDestination 
+                        R.adjacentSystems
                         (fasp, polaris)
             assertBool "Fasp -> Polaris must be not reachable" (isNothing res)
     ]

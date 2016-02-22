@@ -47,7 +47,7 @@ instance NewEdenRouting_Iface ServiceHandler where
         let mpath = dijkstra
                         reqUniverse
                         preferShorter
-                        preferShortestDistanceToDestination
+                        adjacentSystems
                         (fromJust fromS, fromJust toS)
 
         -- Check if we have a result and return the appropriate value

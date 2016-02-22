@@ -49,13 +49,7 @@ notMember s u = S.notMember s (solarSystems u)
 
 -- | Calculates the distance between two coordinates....
 distance :: Coordinate -> Coordinate -> Lightyear
-distance from to =
-    let
-        dx = (xCoord to) - (xCoord from)
-        dz = (yCoord to) - (yCoord from)
-        dy = (yCoord to) - (zCoord from)
-    in
-        sqrt (dx*dx + dy*dy + dz*dz)
+distance to from = norm (diff to from)
 
 -- | Constructs an adjacent list from a list of connections.
 -- Interally used.

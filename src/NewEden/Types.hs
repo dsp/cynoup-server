@@ -13,12 +13,16 @@ module NewEden.Types
     , Celestial(..)
     , Connection(..)
     , Coordinate(..)
+    , diff
     , DistanceFn
-    , Id
     , EstimationFn
+    , Id
     , Lightyear
     , LookupMap
     , Meter
+    , NeighbourFn
+    , norm
+    , NormedVectorSpace
     , Region(..)
     , Route
     , Solarsystem(..)
@@ -75,6 +79,7 @@ instance Ord Solarsystem where
 type Route = [Solarsystem]
 type AdjacentList = M.HashMap Solarsystem [Solarsystem]
 type DistanceFn = (Solarsystem -> Solarsystem -> Double)
+type NeighbourFn = (Universe -> Solarsystem -> [Solarsystem])
 type LookupMap = M.HashMap Id Solarsystem
 type EstimationFn = (Solarsystem -> Double)
 
@@ -90,3 +95,21 @@ data Connection = Connection Solarsystem Solarsystem
 -- Handler for a universes. At the service boarder we move around data points
 data UniverseHandle = UniverseHandle String
     deriving(Ord, Eq, Show)
+
+-- | A partial defintion of a normed vector space which defines a metric
+class NormedVectorSpace v where
+    norm  :: v -> Double
+    diff :: v -> v -> Coordinate
+
+instance NormedVectorSpace Coordinate where
+    norm (Coordinate x y z) = sqrt(x*x + y*y + z*z)
+    diff (Coordinate x0 y0 z0) (Coordinate x1 y1 z1) =
+        Coordinate
+            (x1-x0)
+            (y1-y0)
+            (z1-z0)
+
+instance NormedVectorSpace Solarsystem where
+    norm a = (norm . systemCoord) a
+    diff a b = diff (systemCoord a) (systemCoord b)
+

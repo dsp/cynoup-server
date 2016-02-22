@@ -1,14 +1,15 @@
 module NewEden
     (
     -- Functions
-      combine
+      adjacentSystems
+    , combine
     , distance
+    , equalDistance
     , fromMeters
     , lookupById
     , preferHighsec
     , preferSafer
     , preferShorter
-    , preferShortestDistanceToDestination
     , universe
     , universeMaybe
 
