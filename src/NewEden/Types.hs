@@ -28,6 +28,7 @@ module NewEden.Types
     , NormedVectorSpace
     , Region(..)
     , Route
+    , RoutePreference(..)
     , Solarsystem(..)
     , Universe(..)
     ) where
@@ -47,13 +48,11 @@ data Coordinate = Coordinate {
     yCoord :: Lightyear,
     zCoord :: Lightyear
 } deriving (Show, Eq, Generic)
-instance Hashable Coordinate
 
 data Region = Region {
     regionId :: Id,
     regionName :: String
 } deriving (Show, Eq, Generic)
-instance Hashable Region
 
 data Solarsystem = Solarsystem {
     systemId :: Id,
@@ -63,7 +62,6 @@ data Solarsystem = Solarsystem {
     systemRegion :: Region,
     systemCelestials :: [Celestial]
 } deriving (Show, Generic)
-instance Hashable Solarsystem
 
 data Celestial = Celestial {
     celestialItemID :: Id,
@@ -72,7 +70,11 @@ data Celestial = Celestial {
     celestialName :: String,
     celestialCoord :: Coordinate
 } deriving (Show, Generic)
+
 instance Hashable Celestial
+instance Hashable Coordinate
+instance Hashable Region
+instance Hashable Solarsystem
 
 instance Eq Solarsystem where
     (==) s1 s2 = (systemId s1) == (systemId s2)
@@ -129,3 +131,6 @@ instance NormedVectorSpace Solarsystem where
     norm a = (norm . systemCoord) a
     diff a b = diff (systemCoord a) (systemCoord b)
 
+data RoutePreference = RouteShortest
+                     | RouteSafer
+                     | RouteMoreDangerous

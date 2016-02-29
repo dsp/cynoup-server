@@ -13,10 +13,9 @@ module NewEden.Routing
     , astar
     , dijkstra
     , equalDistance
-    , preferHighsec
-    , preferSafer
-    , preferShorter
+    , jumps
     , reachableSystems
+    , route
     ) where
 
 import NewEden.Types
@@ -27,52 +26,13 @@ import Control.Monad.State
 import Data.Maybe
 import qualified Data.Heap as H
 import qualified Data.HashMap.Strict as M
-
-
-type DijkstraHeap = H.MinPrioHeap Double Solarsystem
-type DijkstraState = (DijkstraHeap,
-                      M.HashMap Solarsystem Double,
-                      M.HashMap Solarsystem Solarsystem)
-type ReversePath = M.HashMap Solarsystem Solarsystem
-
-
-preferShorter :: Solarsystem -> Solarsystem -> Double
-preferShorter _ _ = 1.0
-
+import qualified NewEden.Routing.Preferences as Pref
 
 -- TODO: I think the naming is wrong, we want to fix that.
 equalDistance :: Solarsystem -> Double
 equalDistance _ = 0.0
 
-
-prefer :: (Double -> Double) -> Solarsystem -> Solarsystem -> Double
-prefer fn a b = fn $ min (systemSecurity a) (systemSecurity b)
-
-
-preferSafer :: Solarsystem -> Solarsystem -> Double
-preferSafer =
-    prefer sec
-    where
-        sec :: Double -> Double
-        sec a
-            | a <= 0.0 = 1000.0
-            | a <= 0.5 = 100.0
-            | otherwise = 1.0
-
-
-preferHighsec :: Solarsystem -> Solarsystem -> Double
-preferHighsec =
-    prefer sec
-    where
-        sec :: Double -> Double
-        sec a
-            | a <= 0.0 = 1000.0
-            | a <= 0.5 = 1000.0
-            | otherwise = 1.0
-
-
 adjacentSystems u s = (adjacentList u M.! s)
-
 
 -- TODO: fix this ugly stuff here.
 reachableSystems :: Lightyear -> Universe -> Solarsystem -> [Solarsystem]
@@ -89,6 +49,27 @@ reachableSystems d u s =
             where
                 dpred (DistancePair d1 _) = pred d1
 
+
+type DijkstraHeap = H.MinPrioHeap Double Solarsystem
+type DijkstraState = (DijkstraHeap,
+                      M.HashMap Solarsystem Double,
+                      M.HashMap Solarsystem Solarsystem)
+type ReversePath = M.HashMap Solarsystem Solarsystem
+
+route :: Universe
+      -> RoutePreference
+      -> (Solarsystem, Solarsystem)
+      -> Maybe [Solarsystem]
+route u pref (from, to) =
+    dijkstra u (Pref.fromRoutePreference pref) adjacentSystems (from, to)
+
+jumps :: Universe
+      -> Lightyear
+      -> RoutePreference
+      -> (Solarsystem, Solarsystem)
+      -> Maybe [Solarsystem]
+jumps u d pref (from, to) =
+    astar u (Pref.fromRoutePreference pref) equalDistance (reachableSystems d) (from, to)
 
 -- | An implementation of Dijkstra's shortes path algorithm. The distance
 -- function determines the distance between two solarsystems. The most common

@@ -6,21 +6,19 @@ module NewEden
     , equalDistance
     , fromMeters
     , lookupById
-    , preferHighsec
-    , preferSafer
-    , preferShorter
     , reachableSystems
     , universe
     , universeMaybe
 
     -- Database
     , generateNewEden
-
     , insertConnections
 
     -- Routing
     , astar
     , dijkstra
+    , jumps
+    , route
 
     , between
     -- * Core types
@@ -32,6 +30,7 @@ module NewEden
     , Lightyear
     , Meter
     , Region(..)
+    , RoutePreference(..)
     , Route
     , Solarsystem(..)
     , Universe(..)

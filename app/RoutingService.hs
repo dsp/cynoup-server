@@ -15,7 +15,7 @@ import qualified NewEdenRouting
 import qualified NewEden_Types as T
 import qualified Thrift.Server as TS
 
-import NewEdenRouting_Iface
+import qualified NewEdenRouting_Iface as S
 import NewEden
 import RunServer
 
@@ -28,7 +28,7 @@ newHandler u = do
     mu <- newMVar u
     return $ ServiceHandler mu
 
-instance NewEdenRouting_Iface ServiceHandler where
+instance S.NewEdenRouting_Iface ServiceHandler where
     route self from to c opts = do
         universe <- readMVar (neweden self)
 
@@ -44,11 +44,7 @@ instance NewEdenRouting_Iface ServiceHandler where
             throw $ T.LogicalError 1 "Systems not in universe"
 
         -- Run our dijkstra
-        let mpath = dijkstra
-                        reqUniverse
-                        preferShorter
-                        adjacentSystems
-                        (fromJust fromS, fromJust toS)
+        let mpath = route reqUniverse RouteShortest (fromJust fromS, fromJust toS)
 
         -- Check if we have a result and return the appropriate value
         -- from the service.
