@@ -79,6 +79,7 @@ generateNewEden dbPath =
                 -- Convert a row to a solar system
                 toSolarSystem :: [SqlValue] -> IO Solarsystem
                 toSolarSystem [id, name, x, y, z, sec, regid, regname] = do
+                    -- TODO: not really sure how to do the lazy loading of celestials yet
                     --celestials <- unsafeInterleaveIO $ genCelestials dbPath id
                     return $ Solarsystem {
                         systemId = (fromSql id) :: Id,
@@ -109,6 +110,7 @@ generateNewEden dbPath =
                     in
                         Connection a b
 
+-- | Generate a list of Celestials from the database
 genCelestials :: String -> SqlValue -> IO [Celestial]
 genCelestials dbPath systemId =
     let

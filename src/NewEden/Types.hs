@@ -98,6 +98,11 @@ instance Eq DistancePair where
 instance Ord DistancePair where
     (<=) d1 d2 = dpDistance d1 <= dpDistance d2 
 
+-- | Represents a universe.
+-- 
+-- The distance list is a bit weird here. It could very well be in the solarsystem itself,
+-- but as we construct the solar systems separately from the universe, I want to delay
+-- the calculation of the distances until we have a univese.
 data Universe = Universe {
     solarSystems :: S.Set Solarsystem,
     adjacentList :: AdjacentList,
@@ -112,7 +117,8 @@ data Connection = Connection Solarsystem Solarsystem
 data UniverseHandle = UniverseHandle String
     deriving(Ord, Eq, Show)
 
--- | A partial defintion of a normed vector space which defines a metric
+-- | A partial defintion of a normed vector space which defines a metric.
+-- It's a way to unify the Solarsystem and Coordinate handling.
 class NormedVectorSpace v where
     norm  :: v -> Double
     diff :: v -> v -> Coordinate
@@ -131,6 +137,7 @@ instance NormedVectorSpace Solarsystem where
     norm a = (norm . systemCoord) a
     diff a b = diff (systemCoord a) (systemCoord b)
 
+-- | Simple Enum to represent a route preference.
 data RoutePreference = RouteShortest
                      | RouteSafer
                      | RouteMoreDangerous
