@@ -10,12 +10,13 @@ A shortest path implementation for solar systems in side Eve Onlines galaxy.
 -}
 module NewEden.Routing
     ( adjacentSystems
+    , astar
     , dijkstra
     , equalDistance
-    , jumpDistance
     , preferHighsec
     , preferSafer
     , preferShorter
+    , reachableSystems
     ) where
 
 import NewEden.Types
@@ -35,10 +36,6 @@ type DijkstraState = (DijkstraHeap,
 type ReversePath = M.HashMap Solarsystem Solarsystem
 
 
-prefer :: (Double -> Double) -> Solarsystem -> Solarsystem -> Double
-prefer fn a b = fn $ min (systemSecurity a) (systemSecurity b)
-
-
 preferShorter :: Solarsystem -> Solarsystem -> Double
 preferShorter _ _ = 1.0
 
@@ -46,6 +43,10 @@ preferShorter _ _ = 1.0
 -- TODO: I think the naming is wrong, we want to fix that.
 equalDistance :: Solarsystem -> Double
 equalDistance _ = 0.0
+
+
+prefer :: (Double -> Double) -> Solarsystem -> Solarsystem -> Double
+prefer fn a b = fn $ min (systemSecurity a) (systemSecurity b)
 
 
 preferSafer :: Solarsystem -> Solarsystem -> Double
@@ -70,28 +71,36 @@ preferHighsec =
             | otherwise = 1.0
 
 
-jumpDistance :: Solarsystem -> Solarsystem -> Double
-jumpDistance a b = norm (diff a b)
-
 adjacentSystems u s = (adjacentList u M.! s)
+
+
+-- TODO: fix this ugly stuff here.
+reachableSystems :: Lightyear -> Universe -> Solarsystem -> [Solarsystem]
+reachableSystems d u s = 
+    let
+        pred = distancePred (<= d)
+        list = (distanceList u) M.! s
+    in
+    map dpSystem $
+        takeWhile pred list
+    where
+        distancePred :: (Lightyear -> Bool) -> DistancePair -> Bool
+        distancePred pred = dpred
+            where
+                dpred (DistancePair d1 _) = pred d1
+
 
 -- | An implementation of Dijkstra's shortes path algorithm. The distance
 -- function determines the distance between two solarsystems. The most common
 -- application is using the constant 1.0 for system jumps. For capital jumps
 -- an apprioriate eucledian distance can be very useful.
---
--- Example:
---
--- > u <- generateNewEden "/path/to/db.sqlite"
--- > let lookup = lookupMap u
--- > dijksta u (\_ _ -> 1.0) (systems ! "Faspera", systems Map.! "Jita")
 dijkstra :: Universe
          -> DistanceFn
          -> NeighbourFn
          -> (Solarsystem, Solarsystem)
          -> Maybe [Solarsystem]
 dijkstra u distFn neighbourFn (from, to) =
-    astar u distFn equalDistance neighbourFn(from, to)
+    astar u distFn equalDistance neighbourFn (from, to)
 
 astar :: Universe
       -> DistanceFn
@@ -181,5 +190,4 @@ splitMin h =
 -- | Checks if foldable is null and returns Nothing or Just.
 suchThat :: Foldable t => t a -> Maybe (t a)
 suchThat a = if (not . null) a then Just a else Nothing
-
 

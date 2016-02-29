@@ -3,13 +3,13 @@ module NewEden
     -- Functions
       adjacentSystems
     , combine
-    , distance
     , equalDistance
     , fromMeters
     , lookupById
     , preferHighsec
     , preferSafer
     , preferShorter
+    , reachableSystems
     , universe
     , universeMaybe
 
@@ -19,6 +19,7 @@ module NewEden
     , insertConnections
 
     -- Routing
+    , astar
     , dijkstra
 
     , between

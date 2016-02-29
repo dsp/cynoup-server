@@ -27,6 +27,12 @@ toNames u xs =
 
 tests graph = test 
     [
+        "Simple reachable " ~: do
+            let fasp = fromJust $ F.lookupById 30000044 graph
+            let res = Just $ R.reachableSystems 5.0 graph (fasp)
+            let names = toNames graph res
+            assertEqual ("Range 5 LY from fasp" ++ (show names)) 51 (length names)
+    ,
         "Simple dijkstra" ~: do
             let fasp = fromJust $ F.lookupById 30000044 graph
             let fera = fromJust $ F.lookupById 30000050 graph
@@ -68,6 +74,18 @@ tests graph = test
                         R.adjacentSystems
                         (fasp, polaris)
             assertBool "Fasp -> Polaris must be not reachable" (isNothing res)
+    ,
+        "Jump Nyx Fasp to HB-5L3" ~: do
+            let fasp = fromJust $ F.lookupById 30000044 graph
+            let hb5l3 = fromJust $ F.lookupById 30004228 graph
+            let res = R.astar
+                        graph
+                        R.preferShorter
+                        R.equalDistance
+                        (R.reachableSystems 5.0)
+                        (fasp, hb5l3)
+            let names = toNames graph res
+            assertEqual ("Jumping from Fasp to HB-5L3" ++ (show names)) 17 (length names)
     ]
 
 main = do

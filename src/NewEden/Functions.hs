@@ -11,7 +11,6 @@ Various helper functions to construct universe, convert, etc.
 module NewEden.Functions
     ( -- module exports
       combine
-    , distance
     , fromConnectionList
     , fromMeters
     , insertConnections
@@ -27,7 +26,7 @@ import NewEden.Types
 import qualified Data.HashMap.Strict as M
 import qualified Data.Set as S
 import Data.Maybe (fromJust)
-import Data.List (nub)
+import Data.List (nub, sort)
 
 
 -- | Converts meters to lightyears.
@@ -46,10 +45,6 @@ member s u = S.member s (solarSystems u)
 -- | Opposite of 'member'
 notMember :: Solarsystem -> Universe -> Bool
 notMember s u = S.notMember s (solarSystems u)
-
--- | Calculates the distance between two coordinates....
-distance :: Coordinate -> Coordinate -> Lightyear
-distance to from = norm (diff to from)
 
 -- | Constructs an adjacent list from a list of connections.
 -- Interally used.
@@ -81,6 +76,9 @@ universeMaybe s c =
             Universe {
                 solarSystems = systems,
                 adjacentList = M.union connections emptyConnections,
+                -- TODO: Have to think about this again, it makes the amount of systems
+                -- to consider much smaller but assumes eve game limits in the API.
+                distanceList = distances (filter jumpableSystems (S.toList systems)),
                 lookupMap = lookupMap
             }
     else
@@ -88,12 +86,30 @@ universeMaybe s c =
     where
         conv k = (systemId k, k)
         flatten (a,xs) = map (\x -> (a,x)) xs
+        distances systems =
+            foldr
+                (\s m -> M.insert s (calculateDistances s systems) m)
+                M.empty
+                systems
+            where
+            -- TODO: FIX THIS!!!
+                calculateDistances s xs =
+                    sort $
+                        filter maxJumpDistanceInEve $
+                            map (distancePair s) xs
+
         checkConnection lm (s1,s2) =
             let
                 (a, b) = (systemId s1, systemId s2)
             in
                 M.member a lm && M.member b lm
 
+
+maxJumpDistanceInEve = (<= 10.0) . dpDistance
+jumpableSystems = (< 0.45) . systemSecurity
+
+distancePair :: Solarsystem -> Solarsystem -> DistancePair
+distancePair a b = DistancePair (distance a b) b
 
 -- | Creates a universe from a list of connections
 universe :: [Solarsystem]
@@ -104,20 +120,20 @@ universe s c = fromJust $ universeMaybe s c
 lookupById :: Id -> Universe -> Maybe Solarsystem
 lookupById i u = M.lookup i (lookupMap u)
 
-
 -- | The `combineUniverses` functions combines two universes by union
 --   the solarsystems map and combine adjacent lists. Duplicated entries
 --   are removed.
 combine :: Universe -> Universe -> Universe
 combine u1 u2 =
     let
-        (s1, al1, lm1) = (solarSystems u1, adjacentList u1, lookupMap u1)
-        (s2, al2, lm2) = (solarSystems u2, adjacentList u2, lookupMap u2)
+        (s1, al1, dl1, lm1) = (solarSystems u1, adjacentList u1, distanceList u1, lookupMap u1)
+        (s2, al2, dl2, lm2) = (solarSystems u2, adjacentList u2, distanceList u2, lookupMap u2)
     in
     Universe {
         solarSystems = S.union s1 s2,
         adjacentList = M.unionWith combine al1 al2,
-        lookupMap = M.union lm1 lm2
+        lookupMap = M.union lm1 lm2,
+        distanceList = M.unionWith (\a b -> sort (combine a b)) dl1 dl2
     }
     where
         combine a b = nub $ a ++ b
@@ -130,6 +146,7 @@ insertConnections u c =
     Universe {
         solarSystems = solarSystems u,
         adjacentList = M.unionWith combine (adjacentList u) connections,
+        distanceList = distanceList u,
         lookupMap = lookupMap u
     }
     where

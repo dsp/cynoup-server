@@ -14,7 +14,10 @@ module NewEden.Types
     , Connection(..)
     , Coordinate(..)
     , diff
+    , distance
     , DistanceFn
+    , DistanceList
+    , DistancePair(..)
     , EstimationFn
     , Id
     , Lightyear
@@ -81,11 +84,22 @@ type AdjacentList = M.HashMap Solarsystem [Solarsystem]
 type DistanceFn = (Solarsystem -> Solarsystem -> Double)
 type NeighbourFn = (Universe -> Solarsystem -> [Solarsystem])
 type LookupMap = M.HashMap Id Solarsystem
+type DistanceList = M.HashMap Solarsystem [DistancePair]
 type EstimationFn = (Solarsystem -> Double)
+
+data DistancePair = DistancePair {
+        dpDistance :: Lightyear,
+        dpSystem :: Solarsystem
+    } deriving (Show)
+instance Eq DistancePair where
+    (==) d1 d2 = dpSystem d1 == dpSystem d2
+instance Ord DistancePair where
+    (<=) d1 d2 = dpDistance d1 <= dpDistance d2 
 
 data Universe = Universe {
     solarSystems :: S.Set Solarsystem,
     adjacentList :: AdjacentList,
+    distanceList :: DistanceList,
     lookupMap :: LookupMap
 } deriving (Show, Eq)
 
@@ -100,6 +114,8 @@ data UniverseHandle = UniverseHandle String
 class NormedVectorSpace v where
     norm  :: v -> Double
     diff :: v -> v -> Coordinate
+    distance :: v -> v -> Double
+    distance a b = norm (diff a b)
 
 instance NormedVectorSpace Coordinate where
     norm (Coordinate x y z) = sqrt(x*x + y*y + z*z)

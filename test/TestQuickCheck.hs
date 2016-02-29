@@ -61,11 +61,6 @@ instance Arbitrary Universe where
         else
             arbitrary
 
-
-prop_distance_pos c1 c2 =
-    distance c1 c2 >= 0.0
-
-
 prop_distance_eucledian c1 c2 =
     let
         zero = Coordinate 0.0 0.0 0.0
