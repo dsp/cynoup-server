@@ -28,6 +28,11 @@ distanceToLine p (a,b) =
     -- http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
     (norm (cross (diff b a) (diff a p))) / ((norm (diff b a)) ** 2)
 
+-- | Returns a pairs of celestials ordered by how close the given coordinate
+-- is from the line between the two celestials.
+--
+-- Note this here is clearly O(n^2).
+--
 between :: Solarsystem -> Coordinate -> [(Celestial, Celestial)]
 between system coordinate =
     let

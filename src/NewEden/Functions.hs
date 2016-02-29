@@ -86,13 +86,17 @@ universeMaybe s c =
     where
         conv k = (systemId k, k)
         flatten (a,xs) = map (\x -> (a,x)) xs
+        -- So this is absolutly terrible.
+        -- 1. We should check if we have already inserted the reverse distance and reuse it
+        -- 2. We put game limitations in here, to reduce the amount of calculations
+        -- effectivly ignoring everything further than 10LY as this is the max a ship can do anyway.
+        -- 3. It's just horrible code.
         distances systems =
             foldr
                 (\s m -> M.insert s (calculateDistances s systems) m)
                 M.empty
                 systems
             where
-            -- TODO: FIX THIS!!!
                 calculateDistances s xs =
                     sort $
                         filter maxJumpDistanceInEve $
