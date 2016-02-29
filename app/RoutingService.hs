@@ -28,6 +28,8 @@ newHandler u = do
     mu <- newMVar u
     return $ ServiceHandler mu
 
+conv = fromIntegral . systemId
+
 instance S.NewEdenRouting_Iface ServiceHandler where
     route self from to c opts = do
         universe <- readMVar (neweden self)
@@ -55,7 +57,6 @@ instance S.NewEdenRouting_Iface ServiceHandler where
                 return $ V.empty
 
         where
-            conv = fromIntegral . systemId
             fromThriftCons c u = V.toList $ (V.map (convertConnection u) c)
             convertConnection u (T.Connection a b _) =
                 let
@@ -65,7 +66,24 @@ instance S.NewEdenRouting_Iface ServiceHandler where
                 Connection (fromJust sysA) (fromJust sysB)
 
     jumps self from to reach opts = do
-        return $ V.empty
+        universe <- readMVar (neweden self)
+
+        let fromS = lookupById (fromIntegral from) universe
+        let toS   = lookupById (fromIntegral to) universe
+
+        -- Our assertion. All systems must be in the universe
+        when (isNothing (toS *> fromS)) $
+            throw $ T.LogicalError 1 "Systems not in universe"
+
+        let mpath = jumps universe reach RouteShortest (fromJust fromS, fromJust toS)
+
+        -- Check if we have a result and return the appropriate value
+        -- from the service.
+        case mpath of
+            Just path ->
+                return $ V.fromList (map conv path)
+            Nothing ->
+                return $ V.empty
 
 prgVersion :: String
 prgVersion = "0.1.0"
