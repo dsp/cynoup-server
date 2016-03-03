@@ -13,7 +13,7 @@
 -- DO NOT EDIT UNLESS YOU ARE SURE YOU KNOW WHAT YOU ARE DOING --
 -----------------------------------------------------------------
 
-module NewEdenRouting_Client(route,jumps) where
+module NewEdenRouting_Client(route,jumps,range) where
 import qualified Data.IORef as R
 import Prelude (($), (.), (>>=), (==), (++))
 import qualified Prelude as P
@@ -77,4 +77,23 @@ recv_jumps ip = do
   res <- read_Jumps_result ip
   T.readMessageEnd ip
   P.maybe (P.return ()) X.throw (jumps_result_le res)
+  P.maybe (P.return ()) X.throw (jumps_result_ia res)
   P.return $ jumps_result_success res
+range (ip,op) arg_fromSolarSystemId arg_rangeInLightyears = do
+  send_range op arg_fromSolarSystemId arg_rangeInLightyears
+  recv_range ip
+send_range op arg_fromSolarSystemId arg_rangeInLightyears = do
+  seq <- seqid
+  seqn <- R.readIORef seq
+  T.writeMessageBegin op ("range", T.M_CALL, seqn)
+  write_Range_args op (Range_args{range_args_fromSolarSystemId=arg_fromSolarSystemId,range_args_rangeInLightyears=arg_rangeInLightyears})
+  T.writeMessageEnd op
+  T.tFlush (T.getTransport op)
+recv_range ip = do
+  (fname, mtype, rseqid) <- T.readMessageBegin ip
+  M.when (mtype == T.M_EXCEPTION) $ do { exn <- T.readAppExn ip ; T.readMessageEnd ip ; X.throw exn }
+  res <- read_Range_result ip
+  T.readMessageEnd ip
+  P.maybe (P.return ()) X.throw (range_result_le res)
+  P.maybe (P.return ()) X.throw (range_result_ia res)
+  P.return $ range_result_success res

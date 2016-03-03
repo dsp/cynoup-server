@@ -48,14 +48,27 @@ interface NewEdenRoutingIf {
    * 
    * @param int $toSolarSystemId The system id to go to
    * 
-   * @param double $rangeInLightyears Jump range in lightyears (e.g. 5.0 for a Nyx)
+   * @param double $rangeInLightyears Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
    * 
    * @param int $opts Options on how to choose routes
    * 
    * @return int[]
    * @throws \cynoup\neweden\LogicalError
+   * @throws \cynoup\neweden\InvalidArgument
    */
   public function jumps($fromSolarSystemId, $toSolarSystemId, $rangeInLightyears, $opts);
+  /**
+   * Find all systems in range.
+   * 
+   * @param int $fromSolarSystemId The system id to start from
+   * 
+   * @param double $rangeInLightyears Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
+   * 
+   * @return int[]
+   * @throws \cynoup\neweden\LogicalError
+   * @throws \cynoup\neweden\InvalidArgument
+   */
+  public function range($fromSolarSystemId, $rangeInLightyears);
 }
 
 class NewEdenRoutingClient implements \cynoup\routing\NewEdenRoutingIf {
@@ -180,7 +193,68 @@ class NewEdenRoutingClient implements \cynoup\routing\NewEdenRoutingIf {
     if ($result->le !== null) {
       throw $result->le;
     }
+    if ($result->ia !== null) {
+      throw $result->ia;
+    }
     throw new \Exception("jumps failed: unknown result");
+  }
+
+  public function range($fromSolarSystemId, $rangeInLightyears)
+  {
+    $this->send_range($fromSolarSystemId, $rangeInLightyears);
+    return $this->recv_range();
+  }
+
+  public function send_range($fromSolarSystemId, $rangeInLightyears)
+  {
+    $args = new \cynoup\routing\NewEdenRouting_range_args();
+    $args->fromSolarSystemId = $fromSolarSystemId;
+    $args->rangeInLightyears = $rangeInLightyears;
+    $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+    if ($bin_accel)
+    {
+      thrift_protocol_write_binary($this->output_, 'range', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+    }
+    else
+    {
+      $this->output_->writeMessageBegin('range', TMessageType::CALL, $this->seqid_);
+      $args->write($this->output_);
+      $this->output_->writeMessageEnd();
+      $this->output_->getTransport()->flush();
+    }
+  }
+
+  public function recv_range()
+  {
+    $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
+    if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\cynoup\routing\NewEdenRouting_range_result', $this->input_->isStrictRead());
+    else
+    {
+      $rseqid = 0;
+      $fname = null;
+      $mtype = 0;
+
+      $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+      if ($mtype == TMessageType::EXCEPTION) {
+        $x = new TApplicationException();
+        $x->read($this->input_);
+        $this->input_->readMessageEnd();
+        throw $x;
+      }
+      $result = new \cynoup\routing\NewEdenRouting_range_result();
+      $result->read($this->input_);
+      $this->input_->readMessageEnd();
+    }
+    if ($result->success !== null) {
+      return $result->success;
+    }
+    if ($result->le !== null) {
+      throw $result->le;
+    }
+    if ($result->ia !== null) {
+      throw $result->ia;
+    }
+    throw new \Exception("range failed: unknown result");
   }
 
 }
@@ -509,7 +583,7 @@ class NewEdenRouting_jumps_args {
    */
   public $toSolarSystemId = null;
   /**
-   * Jump range in lightyears (e.g. 5.0 for a Nyx)
+   * Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
    * 
    * @var double
    */
@@ -656,6 +730,10 @@ class NewEdenRouting_jumps_result {
    * @var \cynoup\neweden\LogicalError
    */
   public $le = null;
+  /**
+   * @var \cynoup\neweden\InvalidArgument
+   */
+  public $ia = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
@@ -673,6 +751,11 @@ class NewEdenRouting_jumps_result {
           'type' => TType::STRUCT,
           'class' => '\cynoup\neweden\LogicalError',
           ),
+        2 => array(
+          'var' => 'ia',
+          'type' => TType::STRUCT,
+          'class' => '\cynoup\neweden\InvalidArgument',
+          ),
         );
     }
     if (is_array($vals)) {
@@ -681,6 +764,9 @@ class NewEdenRouting_jumps_result {
       }
       if (isset($vals['le'])) {
         $this->le = $vals['le'];
+      }
+      if (isset($vals['ia'])) {
+        $this->ia = $vals['ia'];
       }
     }
   }
@@ -729,6 +815,14 @@ class NewEdenRouting_jumps_result {
             $xfer += $input->skip($ftype);
           }
           break;
+        case 2:
+          if ($ftype == TType::STRUCT) {
+            $this->ia = new \cynoup\neweden\InvalidArgument();
+            $xfer += $this->ia->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -762,6 +856,264 @@ class NewEdenRouting_jumps_result {
     if ($this->le !== null) {
       $xfer += $output->writeFieldBegin('le', TType::STRUCT, 1);
       $xfer += $this->le->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->ia !== null) {
+      $xfer += $output->writeFieldBegin('ia', TType::STRUCT, 2);
+      $xfer += $this->ia->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class NewEdenRouting_range_args {
+  static $_TSPEC;
+
+  /**
+   * The system id to start from
+   * 
+   * @var int
+   */
+  public $fromSolarSystemId = null;
+  /**
+   * Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
+   * 
+   * @var double
+   */
+  public $rangeInLightyears = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        1 => array(
+          'var' => 'fromSolarSystemId',
+          'type' => TType::I32,
+          ),
+        4 => array(
+          'var' => 'rangeInLightyears',
+          'type' => TType::DOUBLE,
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['fromSolarSystemId'])) {
+        $this->fromSolarSystemId = $vals['fromSolarSystemId'];
+      }
+      if (isset($vals['rangeInLightyears'])) {
+        $this->rangeInLightyears = $vals['rangeInLightyears'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'NewEdenRouting_range_args';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 1:
+          if ($ftype == TType::I32) {
+            $xfer += $input->readI32($this->fromSolarSystemId);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 4:
+          if ($ftype == TType::DOUBLE) {
+            $xfer += $input->readDouble($this->rangeInLightyears);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('NewEdenRouting_range_args');
+    if ($this->fromSolarSystemId !== null) {
+      $xfer += $output->writeFieldBegin('fromSolarSystemId', TType::I32, 1);
+      $xfer += $output->writeI32($this->fromSolarSystemId);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->rangeInLightyears !== null) {
+      $xfer += $output->writeFieldBegin('rangeInLightyears', TType::DOUBLE, 4);
+      $xfer += $output->writeDouble($this->rangeInLightyears);
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class NewEdenRouting_range_result {
+  static $_TSPEC;
+
+  /**
+   * @var int[]
+   */
+  public $success = null;
+  /**
+   * @var \cynoup\neweden\LogicalError
+   */
+  public $le = null;
+  /**
+   * @var \cynoup\neweden\InvalidArgument
+   */
+  public $ia = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        0 => array(
+          'var' => 'success',
+          'type' => TType::LST,
+          'etype' => TType::I32,
+          'elem' => array(
+            'type' => TType::I32,
+            ),
+          ),
+        1 => array(
+          'var' => 'le',
+          'type' => TType::STRUCT,
+          'class' => '\cynoup\neweden\LogicalError',
+          ),
+        2 => array(
+          'var' => 'ia',
+          'type' => TType::STRUCT,
+          'class' => '\cynoup\neweden\InvalidArgument',
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['success'])) {
+        $this->success = $vals['success'];
+      }
+      if (isset($vals['le'])) {
+        $this->le = $vals['le'];
+      }
+      if (isset($vals['ia'])) {
+        $this->ia = $vals['ia'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'NewEdenRouting_range_result';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 0:
+          if ($ftype == TType::LST) {
+            $this->success = array();
+            $_size21 = 0;
+            $_etype24 = 0;
+            $xfer += $input->readListBegin($_etype24, $_size21);
+            for ($_i25 = 0; $_i25 < $_size21; ++$_i25)
+            {
+              $elem26 = null;
+              $xfer += $input->readI32($elem26);
+              $this->success []= $elem26;
+            }
+            $xfer += $input->readListEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 1:
+          if ($ftype == TType::STRUCT) {
+            $this->le = new \cynoup\neweden\LogicalError();
+            $xfer += $this->le->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
+          if ($ftype == TType::STRUCT) {
+            $this->ia = new \cynoup\neweden\InvalidArgument();
+            $xfer += $this->ia->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('NewEdenRouting_range_result');
+    if ($this->success !== null) {
+      if (!is_array($this->success)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('success', TType::LST, 0);
+      {
+        $output->writeListBegin(TType::I32, count($this->success));
+        {
+          foreach ($this->success as $iter27)
+          {
+            $xfer += $output->writeI32($iter27);
+          }
+        }
+        $output->writeListEnd();
+      }
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->le !== null) {
+      $xfer += $output->writeFieldBegin('le', TType::STRUCT, 1);
+      $xfer += $this->le->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->ia !== null) {
+      $xfer += $output->writeFieldBegin('ia', TType::STRUCT, 2);
+      $xfer += $this->ia->write($output);
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();

@@ -50,11 +50,23 @@ service NewEdenRouting
         /** The system id to go to */
         2: i32 toSolarSystemId,
 
-        /** Jump range in lightyears (e.g. 5.0 for a Nyx) */
+        /** Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY */
         4: double rangeInLightyears,
 
         /** Options on how to choose routes */
         5: i8 opts = OPTION_PREFER_SHORTEST)
 
-        throws (1: NewEden.LogicalError le),
+        throws (1: NewEden.LogicalError le, 2: NewEden.InvalidArgument ia),
+
+    /**
+     * Find all systems in range.
+     */
+    list<i32> range(
+        /** The system id to start from */
+        1: i32 fromSolarSystemId,
+
+        /** Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY */
+        4: double rangeInLightyears)
+
+        throws (1: NewEden.LogicalError le, 2: NewEden.InvalidArgument ia),
 }

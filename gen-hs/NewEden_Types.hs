@@ -247,3 +247,42 @@ default_LogicalError :: LogicalError
 default_LogicalError = LogicalError{
   logicalError_errno = 0,
   logicalError_message = ""}
+data InvalidArgument = InvalidArgument  { invalidArgument_errno :: I.Int32
+  , invalidArgument_message :: LT.Text
+  } deriving (P.Show,P.Eq,G.Generic,TY.Typeable)
+instance X.Exception InvalidArgument
+instance H.Hashable InvalidArgument where
+  hashWithSalt salt record = salt   `H.hashWithSalt` invalidArgument_errno record   `H.hashWithSalt` invalidArgument_message record  
+instance QC.Arbitrary InvalidArgument where 
+  arbitrary = M.liftM InvalidArgument (QC.arbitrary)
+          `M.ap`(QC.arbitrary)
+  shrink obj | obj == default_InvalidArgument = []
+             | P.otherwise = M.catMaybes
+    [ if obj == default_InvalidArgument{invalidArgument_errno = invalidArgument_errno obj} then P.Nothing else P.Just $ default_InvalidArgument{invalidArgument_errno = invalidArgument_errno obj}
+    , if obj == default_InvalidArgument{invalidArgument_message = invalidArgument_message obj} then P.Nothing else P.Just $ default_InvalidArgument{invalidArgument_message = invalidArgument_message obj}
+    ]
+from_InvalidArgument :: InvalidArgument -> T.ThriftVal
+from_InvalidArgument record = T.TStruct $ Map.fromList $ M.catMaybes
+  [ (\_v40 -> P.Just (1, ("errno",T.TI32 _v40))) $ invalidArgument_errno record
+  , (\_v40 -> P.Just (2, ("message",T.TString $ E.encodeUtf8 _v40))) $ invalidArgument_message record
+  ]
+write_InvalidArgument :: (T.Protocol p, T.Transport t) => p t -> InvalidArgument -> P.IO ()
+write_InvalidArgument oprot record = T.writeVal oprot $ from_InvalidArgument record
+encode_InvalidArgument :: (T.Protocol p, T.Transport t) => p t -> InvalidArgument -> LBS.ByteString
+encode_InvalidArgument oprot record = T.serializeVal oprot $ from_InvalidArgument record
+to_InvalidArgument :: T.ThriftVal -> InvalidArgument
+to_InvalidArgument (T.TStruct fields) = InvalidArgument{
+  invalidArgument_errno = P.maybe (invalidArgument_errno default_InvalidArgument) (\(_,_val42) -> (case _val42 of {T.TI32 _val43 -> _val43; _ -> P.error "wrong type"})) (Map.lookup (1) fields),
+  invalidArgument_message = P.maybe (invalidArgument_message default_InvalidArgument) (\(_,_val42) -> (case _val42 of {T.TString _val44 -> E.decodeUtf8 _val44; _ -> P.error "wrong type"})) (Map.lookup (2) fields)
+  }
+to_InvalidArgument _ = P.error "not a struct"
+read_InvalidArgument :: (T.Transport t, T.Protocol p) => p t -> P.IO InvalidArgument
+read_InvalidArgument iprot = to_InvalidArgument <$> T.readVal iprot (T.T_STRUCT typemap_InvalidArgument)
+decode_InvalidArgument :: (T.Protocol p, T.Transport t) => p t -> LBS.ByteString -> InvalidArgument
+decode_InvalidArgument iprot bs = to_InvalidArgument $ T.deserializeVal iprot (T.T_STRUCT typemap_InvalidArgument) bs
+typemap_InvalidArgument :: T.TypeMap
+typemap_InvalidArgument = Map.fromList [(1,("errno",T.T_I32)),(2,("message",T.T_STRING))]
+default_InvalidArgument :: InvalidArgument
+default_InvalidArgument = InvalidArgument{
+  invalidArgument_errno = 0,
+  invalidArgument_message = ""}

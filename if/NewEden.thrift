@@ -53,3 +53,9 @@ exception LogicalError
     1: i32 errno,
     2: string message,
 }
+
+exception InvalidArgument
+{
+    1: i32 errno,
+    2: string message,
+}

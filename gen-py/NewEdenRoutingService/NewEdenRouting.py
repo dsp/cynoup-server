@@ -43,8 +43,18 @@ class Iface(object):
         Parameters:
          - fromSolarSystemId: The system id to start from
          - toSolarSystemId: The system id to go to
-         - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx)
+         - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
          - opts: Options on how to choose routes
+        """
+        pass
+
+    def range(self, fromSolarSystemId, rangeInLightyears):
+        """
+        Find all systems in range.
+
+        Parameters:
+         - fromSolarSystemId: The system id to start from
+         - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
         """
         pass
 
@@ -113,7 +123,7 @@ class Client(Iface):
         Parameters:
          - fromSolarSystemId: The system id to start from
          - toSolarSystemId: The system id to go to
-         - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx)
+         - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
          - opts: Options on how to choose routes
         """
         self.send_jumps(fromSolarSystemId, toSolarSystemId, rangeInLightyears, opts)
@@ -145,7 +155,48 @@ class Client(Iface):
             return result.success
         if result.le is not None:
             raise result.le
+        if result.ia is not None:
+            raise result.ia
         raise TApplicationException(TApplicationException.MISSING_RESULT, "jumps failed: unknown result")
+
+    def range(self, fromSolarSystemId, rangeInLightyears):
+        """
+        Find all systems in range.
+
+        Parameters:
+         - fromSolarSystemId: The system id to start from
+         - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
+        """
+        self.send_range(fromSolarSystemId, rangeInLightyears)
+        return self.recv_range()
+
+    def send_range(self, fromSolarSystemId, rangeInLightyears):
+        self._oprot.writeMessageBegin('range', TMessageType.CALL, self._seqid)
+        args = range_args()
+        args.fromSolarSystemId = fromSolarSystemId
+        args.rangeInLightyears = rangeInLightyears
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_range(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = range_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        if result.le is not None:
+            raise result.le
+        if result.ia is not None:
+            raise result.ia
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "range failed: unknown result")
 
 
 class Processor(Iface, TProcessor):
@@ -154,6 +205,7 @@ class Processor(Iface, TProcessor):
         self._processMap = {}
         self._processMap["route"] = Processor.process_route
         self._processMap["jumps"] = Processor.process_jumps
+        self._processMap["range"] = Processor.process_range
 
     def process(self, iprot, oprot):
         (name, type, seqid) = iprot.readMessageBegin()
@@ -205,11 +257,39 @@ class Processor(Iface, TProcessor):
         except NewEden.ttypes.LogicalError as le:
             msg_type = TMessageType.REPLY
             result.le = le
+        except NewEden.ttypes.InvalidArgument as ia:
+            msg_type = TMessageType.REPLY
+            result.ia = ia
         except Exception as ex:
             msg_type = TMessageType.EXCEPTION
             logging.exception(ex)
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("jumps", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_range(self, seqid, iprot, oprot):
+        args = range_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = range_result()
+        try:
+            result.success = self._handler.range(args.fromSolarSystemId, args.rangeInLightyears)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except NewEden.ttypes.LogicalError as le:
+            msg_type = TMessageType.REPLY
+            result.le = le
+        except NewEden.ttypes.InvalidArgument as ia:
+            msg_type = TMessageType.REPLY
+            result.ia = ia
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("range", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -407,7 +487,7 @@ class jumps_args(object):
     Attributes:
      - fromSolarSystemId: The system id to start from
      - toSolarSystemId: The system id to go to
-     - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx)
+     - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
      - opts: Options on how to choose routes
     """
 
@@ -504,16 +584,19 @@ class jumps_result(object):
     Attributes:
      - success
      - le
+     - ia
     """
 
     thrift_spec = (
         (0, TType.LIST, 'success', (TType.I32, None, False), None, ),  # 0
         (1, TType.STRUCT, 'le', (NewEden.ttypes.LogicalError, NewEden.ttypes.LogicalError.thrift_spec), None, ),  # 1
+        (2, TType.STRUCT, 'ia', (NewEden.ttypes.InvalidArgument, NewEden.ttypes.InvalidArgument.thrift_spec), None, ),  # 2
     )
 
-    def __init__(self, success=None, le=None,):
+    def __init__(self, success=None, le=None, ia=None,):
         self.success = success
         self.le = le
+        self.ia = ia
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -540,6 +623,12 @@ class jumps_result(object):
                     self.le.read(iprot)
                 else:
                     iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.ia = NewEden.ttypes.InvalidArgument()
+                    self.ia.read(iprot)
+                else:
+                    iprot.skip(ftype)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -560,6 +649,177 @@ class jumps_result(object):
         if self.le is not None:
             oprot.writeFieldBegin('le', TType.STRUCT, 1)
             self.le.write(oprot)
+            oprot.writeFieldEnd()
+        if self.ia is not None:
+            oprot.writeFieldBegin('ia', TType.STRUCT, 2)
+            self.ia.write(oprot)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class range_args(object):
+    """
+    Attributes:
+     - fromSolarSystemId: The system id to start from
+     - rangeInLightyears: Jump range in lightyears (e.g. 5.0 for a Nyx). Max value is 10 LY
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.I32, 'fromSolarSystemId', None, None, ),  # 1
+        None,  # 2
+        None,  # 3
+        (4, TType.DOUBLE, 'rangeInLightyears', None, None, ),  # 4
+    )
+
+    def __init__(self, fromSolarSystemId=None, rangeInLightyears=None,):
+        self.fromSolarSystemId = fromSolarSystemId
+        self.rangeInLightyears = rangeInLightyears
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.I32:
+                    self.fromSolarSystemId = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.DOUBLE:
+                    self.rangeInLightyears = iprot.readDouble()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('range_args')
+        if self.fromSolarSystemId is not None:
+            oprot.writeFieldBegin('fromSolarSystemId', TType.I32, 1)
+            oprot.writeI32(self.fromSolarSystemId)
+            oprot.writeFieldEnd()
+        if self.rangeInLightyears is not None:
+            oprot.writeFieldBegin('rangeInLightyears', TType.DOUBLE, 4)
+            oprot.writeDouble(self.rangeInLightyears)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class range_result(object):
+    """
+    Attributes:
+     - success
+     - le
+     - ia
+    """
+
+    thrift_spec = (
+        (0, TType.LIST, 'success', (TType.I32, None, False), None, ),  # 0
+        (1, TType.STRUCT, 'le', (NewEden.ttypes.LogicalError, NewEden.ttypes.LogicalError.thrift_spec), None, ),  # 1
+        (2, TType.STRUCT, 'ia', (NewEden.ttypes.InvalidArgument, NewEden.ttypes.InvalidArgument.thrift_spec), None, ),  # 2
+    )
+
+    def __init__(self, success=None, le=None, ia=None,):
+        self.success = success
+        self.le = le
+        self.ia = ia
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.LIST:
+                    self.success = []
+                    (_etype24, _size21) = iprot.readListBegin()
+                    for _i25 in range(_size21):
+                        _elem26 = iprot.readI32()
+                        self.success.append(_elem26)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 1:
+                if ftype == TType.STRUCT:
+                    self.le = NewEden.ttypes.LogicalError()
+                    self.le.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            elif fid == 2:
+                if ftype == TType.STRUCT:
+                    self.ia = NewEden.ttypes.InvalidArgument()
+                    self.ia.read(iprot)
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('range_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.LIST, 0)
+            oprot.writeListBegin(TType.I32, len(self.success))
+            for iter27 in self.success:
+                oprot.writeI32(iter27)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        if self.le is not None:
+            oprot.writeFieldBegin('le', TType.STRUCT, 1)
+            self.le.write(oprot)
+            oprot.writeFieldEnd()
+        if self.ia is not None:
+            oprot.writeFieldBegin('ia', TType.STRUCT, 2)
+            self.ia.write(oprot)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()

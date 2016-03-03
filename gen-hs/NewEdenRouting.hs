@@ -187,23 +187,27 @@ default_Jumps_args = Jumps_args{
   jumps_args_opts = (1)}
 data Jumps_result = Jumps_result  { jumps_result_success :: (Vector.Vector I.Int32)
   , jumps_result_le :: P.Maybe NewEden_Types.LogicalError
+  , jumps_result_ia :: P.Maybe NewEden_Types.InvalidArgument
   } deriving (P.Show,P.Eq,G.Generic,TY.Typeable)
 instance H.Hashable Jumps_result where
-  hashWithSalt salt record = salt   `H.hashWithSalt` jumps_result_success record   `H.hashWithSalt` jumps_result_le record  
+  hashWithSalt salt record = salt   `H.hashWithSalt` jumps_result_success record   `H.hashWithSalt` jumps_result_le record   `H.hashWithSalt` jumps_result_ia record  
 instance QC.Arbitrary Jumps_result where 
   arbitrary = M.liftM Jumps_result (QC.arbitrary)
+          `M.ap`(M.liftM P.Just QC.arbitrary)
           `M.ap`(M.liftM P.Just QC.arbitrary)
   shrink obj | obj == default_Jumps_result = []
              | P.otherwise = M.catMaybes
     [ if obj == default_Jumps_result{jumps_result_success = jumps_result_success obj} then P.Nothing else P.Just $ default_Jumps_result{jumps_result_success = jumps_result_success obj}
     , if obj == default_Jumps_result{jumps_result_le = jumps_result_le obj} then P.Nothing else P.Just $ default_Jumps_result{jumps_result_le = jumps_result_le obj}
+    , if obj == default_Jumps_result{jumps_result_ia = jumps_result_ia obj} then P.Nothing else P.Just $ default_Jumps_result{jumps_result_ia = jumps_result_ia obj}
     ]
 from_Jumps_result :: Jumps_result -> T.ThriftVal
 from_Jumps_result record = T.TStruct $ Map.fromList 
-  (let exns = M.catMaybes [ (\_v35 -> (1, ("le",NewEden_Types.from_LogicalError _v35))) <$> jumps_result_le record]
+  (let exns = M.catMaybes [ (\_v35 -> (1, ("le",NewEden_Types.from_LogicalError _v35))) <$> jumps_result_le record, (\_v35 -> (2, ("ia",NewEden_Types.from_InvalidArgument _v35))) <$> jumps_result_ia record]
   in if P.not (P.null exns) then exns else M.catMaybes
     [ (\_v35 -> P.Just (0, ("success",T.TList T.T_I32 $ P.map (\_v37 -> T.TI32 _v37) $ Vector.toList _v35))) $ jumps_result_success record
     , (\_v35 -> (1, ("le",NewEden_Types.from_LogicalError _v35))) <$> jumps_result_le record
+    , (\_v35 -> (2, ("ia",NewEden_Types.from_InvalidArgument _v35))) <$> jumps_result_ia record
     ]
     )
 write_Jumps_result :: (T.Protocol p, T.Transport t) => p t -> Jumps_result -> P.IO ()
@@ -213,7 +217,8 @@ encode_Jumps_result oprot record = T.serializeVal oprot $ from_Jumps_result reco
 to_Jumps_result :: T.ThriftVal -> Jumps_result
 to_Jumps_result (T.TStruct fields) = Jumps_result{
   jumps_result_success = P.maybe (jumps_result_success default_Jumps_result) (\(_,_val39) -> (case _val39 of {T.TList _ _val40 -> (Vector.fromList $ P.map (\_v41 -> (case _v41 of {T.TI32 _val42 -> _val42; _ -> P.error "wrong type"})) _val40); _ -> P.error "wrong type"})) (Map.lookup (0) fields),
-  jumps_result_le = P.maybe (P.Nothing) (\(_,_val39) -> P.Just (case _val39 of {T.TStruct _val43 -> (NewEden_Types.to_LogicalError (T.TStruct _val43)); _ -> P.error "wrong type"})) (Map.lookup (1) fields)
+  jumps_result_le = P.maybe (P.Nothing) (\(_,_val39) -> P.Just (case _val39 of {T.TStruct _val43 -> (NewEden_Types.to_LogicalError (T.TStruct _val43)); _ -> P.error "wrong type"})) (Map.lookup (1) fields),
+  jumps_result_ia = P.maybe (P.Nothing) (\(_,_val39) -> P.Just (case _val39 of {T.TStruct _val44 -> (NewEden_Types.to_InvalidArgument (T.TStruct _val44)); _ -> P.error "wrong type"})) (Map.lookup (2) fields)
   }
 to_Jumps_result _ = P.error "not a struct"
 read_Jumps_result :: (T.Transport t, T.Protocol p) => p t -> P.IO Jumps_result
@@ -221,11 +226,97 @@ read_Jumps_result iprot = to_Jumps_result <$> T.readVal iprot (T.T_STRUCT typema
 decode_Jumps_result :: (T.Protocol p, T.Transport t) => p t -> LBS.ByteString -> Jumps_result
 decode_Jumps_result iprot bs = to_Jumps_result $ T.deserializeVal iprot (T.T_STRUCT typemap_Jumps_result) bs
 typemap_Jumps_result :: T.TypeMap
-typemap_Jumps_result = Map.fromList [(0,("success",(T.T_LIST T.T_I32))),(1,("le",(T.T_STRUCT NewEden_Types.typemap_LogicalError)))]
+typemap_Jumps_result = Map.fromList [(0,("success",(T.T_LIST T.T_I32))),(1,("le",(T.T_STRUCT NewEden_Types.typemap_LogicalError))),(2,("ia",(T.T_STRUCT NewEden_Types.typemap_InvalidArgument)))]
 default_Jumps_result :: Jumps_result
 default_Jumps_result = Jumps_result{
   jumps_result_success = Vector.empty,
-  jumps_result_le = P.Nothing}
+  jumps_result_le = P.Nothing,
+  jumps_result_ia = P.Nothing}
+data Range_args = Range_args  { range_args_fromSolarSystemId :: I.Int32
+  , range_args_rangeInLightyears :: P.Double
+  } deriving (P.Show,P.Eq,G.Generic,TY.Typeable)
+instance H.Hashable Range_args where
+  hashWithSalt salt record = salt   `H.hashWithSalt` range_args_fromSolarSystemId record   `H.hashWithSalt` range_args_rangeInLightyears record  
+instance QC.Arbitrary Range_args where 
+  arbitrary = M.liftM Range_args (QC.arbitrary)
+          `M.ap`(QC.arbitrary)
+  shrink obj | obj == default_Range_args = []
+             | P.otherwise = M.catMaybes
+    [ if obj == default_Range_args{range_args_fromSolarSystemId = range_args_fromSolarSystemId obj} then P.Nothing else P.Just $ default_Range_args{range_args_fromSolarSystemId = range_args_fromSolarSystemId obj}
+    , if obj == default_Range_args{range_args_rangeInLightyears = range_args_rangeInLightyears obj} then P.Nothing else P.Just $ default_Range_args{range_args_rangeInLightyears = range_args_rangeInLightyears obj}
+    ]
+from_Range_args :: Range_args -> T.ThriftVal
+from_Range_args record = T.TStruct $ Map.fromList $ M.catMaybes
+  [ (\_v47 -> P.Just (1, ("fromSolarSystemId",T.TI32 _v47))) $ range_args_fromSolarSystemId record
+  , (\_v47 -> P.Just (4, ("rangeInLightyears",T.TDouble _v47))) $ range_args_rangeInLightyears record
+  ]
+write_Range_args :: (T.Protocol p, T.Transport t) => p t -> Range_args -> P.IO ()
+write_Range_args oprot record = T.writeVal oprot $ from_Range_args record
+encode_Range_args :: (T.Protocol p, T.Transport t) => p t -> Range_args -> LBS.ByteString
+encode_Range_args oprot record = T.serializeVal oprot $ from_Range_args record
+to_Range_args :: T.ThriftVal -> Range_args
+to_Range_args (T.TStruct fields) = Range_args{
+  range_args_fromSolarSystemId = P.maybe (range_args_fromSolarSystemId default_Range_args) (\(_,_val49) -> (case _val49 of {T.TI32 _val50 -> _val50; _ -> P.error "wrong type"})) (Map.lookup (1) fields),
+  range_args_rangeInLightyears = P.maybe (range_args_rangeInLightyears default_Range_args) (\(_,_val49) -> (case _val49 of {T.TDouble _val51 -> _val51; _ -> P.error "wrong type"})) (Map.lookup (4) fields)
+  }
+to_Range_args _ = P.error "not a struct"
+read_Range_args :: (T.Transport t, T.Protocol p) => p t -> P.IO Range_args
+read_Range_args iprot = to_Range_args <$> T.readVal iprot (T.T_STRUCT typemap_Range_args)
+decode_Range_args :: (T.Protocol p, T.Transport t) => p t -> LBS.ByteString -> Range_args
+decode_Range_args iprot bs = to_Range_args $ T.deserializeVal iprot (T.T_STRUCT typemap_Range_args) bs
+typemap_Range_args :: T.TypeMap
+typemap_Range_args = Map.fromList [(1,("fromSolarSystemId",T.T_I32)),(4,("rangeInLightyears",T.T_DOUBLE))]
+default_Range_args :: Range_args
+default_Range_args = Range_args{
+  range_args_fromSolarSystemId = 0,
+  range_args_rangeInLightyears = 0}
+data Range_result = Range_result  { range_result_success :: (Vector.Vector I.Int32)
+  , range_result_le :: P.Maybe NewEden_Types.LogicalError
+  , range_result_ia :: P.Maybe NewEden_Types.InvalidArgument
+  } deriving (P.Show,P.Eq,G.Generic,TY.Typeable)
+instance H.Hashable Range_result where
+  hashWithSalt salt record = salt   `H.hashWithSalt` range_result_success record   `H.hashWithSalt` range_result_le record   `H.hashWithSalt` range_result_ia record  
+instance QC.Arbitrary Range_result where 
+  arbitrary = M.liftM Range_result (QC.arbitrary)
+          `M.ap`(M.liftM P.Just QC.arbitrary)
+          `M.ap`(M.liftM P.Just QC.arbitrary)
+  shrink obj | obj == default_Range_result = []
+             | P.otherwise = M.catMaybes
+    [ if obj == default_Range_result{range_result_success = range_result_success obj} then P.Nothing else P.Just $ default_Range_result{range_result_success = range_result_success obj}
+    , if obj == default_Range_result{range_result_le = range_result_le obj} then P.Nothing else P.Just $ default_Range_result{range_result_le = range_result_le obj}
+    , if obj == default_Range_result{range_result_ia = range_result_ia obj} then P.Nothing else P.Just $ default_Range_result{range_result_ia = range_result_ia obj}
+    ]
+from_Range_result :: Range_result -> T.ThriftVal
+from_Range_result record = T.TStruct $ Map.fromList 
+  (let exns = M.catMaybes [ (\_v54 -> (1, ("le",NewEden_Types.from_LogicalError _v54))) <$> range_result_le record, (\_v54 -> (2, ("ia",NewEden_Types.from_InvalidArgument _v54))) <$> range_result_ia record]
+  in if P.not (P.null exns) then exns else M.catMaybes
+    [ (\_v54 -> P.Just (0, ("success",T.TList T.T_I32 $ P.map (\_v56 -> T.TI32 _v56) $ Vector.toList _v54))) $ range_result_success record
+    , (\_v54 -> (1, ("le",NewEden_Types.from_LogicalError _v54))) <$> range_result_le record
+    , (\_v54 -> (2, ("ia",NewEden_Types.from_InvalidArgument _v54))) <$> range_result_ia record
+    ]
+    )
+write_Range_result :: (T.Protocol p, T.Transport t) => p t -> Range_result -> P.IO ()
+write_Range_result oprot record = T.writeVal oprot $ from_Range_result record
+encode_Range_result :: (T.Protocol p, T.Transport t) => p t -> Range_result -> LBS.ByteString
+encode_Range_result oprot record = T.serializeVal oprot $ from_Range_result record
+to_Range_result :: T.ThriftVal -> Range_result
+to_Range_result (T.TStruct fields) = Range_result{
+  range_result_success = P.maybe (range_result_success default_Range_result) (\(_,_val58) -> (case _val58 of {T.TList _ _val59 -> (Vector.fromList $ P.map (\_v60 -> (case _v60 of {T.TI32 _val61 -> _val61; _ -> P.error "wrong type"})) _val59); _ -> P.error "wrong type"})) (Map.lookup (0) fields),
+  range_result_le = P.maybe (P.Nothing) (\(_,_val58) -> P.Just (case _val58 of {T.TStruct _val62 -> (NewEden_Types.to_LogicalError (T.TStruct _val62)); _ -> P.error "wrong type"})) (Map.lookup (1) fields),
+  range_result_ia = P.maybe (P.Nothing) (\(_,_val58) -> P.Just (case _val58 of {T.TStruct _val63 -> (NewEden_Types.to_InvalidArgument (T.TStruct _val63)); _ -> P.error "wrong type"})) (Map.lookup (2) fields)
+  }
+to_Range_result _ = P.error "not a struct"
+read_Range_result :: (T.Transport t, T.Protocol p) => p t -> P.IO Range_result
+read_Range_result iprot = to_Range_result <$> T.readVal iprot (T.T_STRUCT typemap_Range_result)
+decode_Range_result :: (T.Protocol p, T.Transport t) => p t -> LBS.ByteString -> Range_result
+decode_Range_result iprot bs = to_Range_result $ T.deserializeVal iprot (T.T_STRUCT typemap_Range_result) bs
+typemap_Range_result :: T.TypeMap
+typemap_Range_result = Map.fromList [(0,("success",(T.T_LIST T.T_I32))),(1,("le",(T.T_STRUCT NewEden_Types.typemap_LogicalError))),(2,("ia",(T.T_STRUCT NewEden_Types.typemap_InvalidArgument)))]
+default_Range_result :: Range_result
+default_Range_result = Range_result{
+  range_result_success = Vector.empty,
+  range_result_le = P.Nothing,
+  range_result_ia = P.Nothing}
 process_route (seqid, iprot, oprot, handler) = do
   args <- read_Route_args iprot
   (X.catch
@@ -252,15 +343,22 @@ process_jumps (seqid, iprot, oprot, handler) = do
   args <- read_Jumps_args iprot
   (X.catch
     (X.catch
-      (do
-        val <- Iface.jumps handler (jumps_args_fromSolarSystemId args) (jumps_args_toSolarSystemId args) (jumps_args_rangeInLightyears args) (jumps_args_opts args)
-        let res = default_Jumps_result{jumps_result_success = val}
-        T.writeMessageBegin oprot ("jumps", T.M_REPLY, seqid)
-        write_Jumps_result oprot res
-        T.writeMessageEnd oprot
-        T.tFlush (T.getTransport oprot))
+      (X.catch
+        (do
+          val <- Iface.jumps handler (jumps_args_fromSolarSystemId args) (jumps_args_toSolarSystemId args) (jumps_args_rangeInLightyears args) (jumps_args_opts args)
+          let res = default_Jumps_result{jumps_result_success = val}
+          T.writeMessageBegin oprot ("jumps", T.M_REPLY, seqid)
+          write_Jumps_result oprot res
+          T.writeMessageEnd oprot
+          T.tFlush (T.getTransport oprot))
+        (\e  -> do
+          let res = default_Jumps_result{jumps_result_le = P.Just e}
+          T.writeMessageBegin oprot ("jumps", T.M_REPLY, seqid)
+          write_Jumps_result oprot res
+          T.writeMessageEnd oprot
+          T.tFlush (T.getTransport oprot)))
       (\e  -> do
-        let res = default_Jumps_result{jumps_result_le = P.Just e}
+        let res = default_Jumps_result{jumps_result_ia = P.Just e}
         T.writeMessageBegin oprot ("jumps", T.M_REPLY, seqid)
         write_Jumps_result oprot res
         T.writeMessageEnd oprot
@@ -270,9 +368,39 @@ process_jumps (seqid, iprot, oprot, handler) = do
       T.writeAppExn oprot (T.AppExn T.AE_UNKNOWN "")
       T.writeMessageEnd oprot
       T.tFlush (T.getTransport oprot)) :: X.SomeException -> P.IO ()))
+process_range (seqid, iprot, oprot, handler) = do
+  args <- read_Range_args iprot
+  (X.catch
+    (X.catch
+      (X.catch
+        (do
+          val <- Iface.range handler (range_args_fromSolarSystemId args) (range_args_rangeInLightyears args)
+          let res = default_Range_result{range_result_success = val}
+          T.writeMessageBegin oprot ("range", T.M_REPLY, seqid)
+          write_Range_result oprot res
+          T.writeMessageEnd oprot
+          T.tFlush (T.getTransport oprot))
+        (\e  -> do
+          let res = default_Range_result{range_result_le = P.Just e}
+          T.writeMessageBegin oprot ("range", T.M_REPLY, seqid)
+          write_Range_result oprot res
+          T.writeMessageEnd oprot
+          T.tFlush (T.getTransport oprot)))
+      (\e  -> do
+        let res = default_Range_result{range_result_ia = P.Just e}
+        T.writeMessageBegin oprot ("range", T.M_REPLY, seqid)
+        write_Range_result oprot res
+        T.writeMessageEnd oprot
+        T.tFlush (T.getTransport oprot)))
+    ((\_ -> do
+      T.writeMessageBegin oprot ("range", T.M_EXCEPTION, seqid)
+      T.writeAppExn oprot (T.AppExn T.AE_UNKNOWN "")
+      T.writeMessageEnd oprot
+      T.tFlush (T.getTransport oprot)) :: X.SomeException -> P.IO ()))
 proc_ handler (iprot,oprot) (name,typ,seqid) = case name of
   "route" -> process_route (seqid,iprot,oprot,handler)
   "jumps" -> process_jumps (seqid,iprot,oprot,handler)
+  "range" -> process_range (seqid,iprot,oprot,handler)
   _ -> do
     _ <- T.readVal iprot (T.T_STRUCT Map.empty)
     T.writeMessageBegin oprot (name,T.M_EXCEPTION,seqid)

@@ -85,6 +85,22 @@ instance S.NewEdenRouting_Iface ServiceHandler where
             Nothing ->
                 return $ V.empty
 
+    range self from reach = do
+        universe <- readMVar (neweden self)
+
+        when (reach > 10.0 || reach < 0.0) $
+            throw $ T.InvalidArgument 1 "rangeInLightyears must be between 0.0 and 10.0"
+
+        let fromS = lookupById (fromIntegral from) universe
+        when (isNothing fromS) $
+            throw $ T.LogicalError 1 "Systems not in universe"
+
+        let reachable = reachableSystems reach universe (fromJust fromS)
+
+        -- Check if we have a result and return the appropriate value
+        -- from the service.
+        return $ V.fromList (map conv reachable)
+
 prgVersion :: String
 prgVersion = "0.1.0"
 
