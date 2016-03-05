@@ -1,5 +1,5 @@
 name:                cynoup-router
-version:             0.1.1.0
+version:             0.2.0.0
 synopsis:            A routing system for Eve Onlines database
 description:         A routing server for New Eden, the galaxy in which
                      the MMO Eve Online takes place.
