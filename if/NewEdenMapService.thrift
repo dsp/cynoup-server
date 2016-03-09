@@ -5,6 +5,9 @@ include "NewEden.thrift"
 
 service NewEdenMap
 {
+    map<i32, string> toNames(1: list<i32> systems),
+    map<string, i32> toIds(1: list<string> systems),
+
     /**
      * Returns all system in the static dump
      */

@@ -13,7 +13,7 @@
 -- DO NOT EDIT UNLESS YOU ARE SURE YOU KNOW WHAT YOU ARE DOING --
 -----------------------------------------------------------------
 
-module NewEdenMap_Client(systems,connection,closest,closestCelestial,distance) where
+module NewEdenMap_Client(toNames,toIds,systems,connection,closest,closestCelestial,distance) where
 import qualified Data.IORef as R
 import Prelude (($), (.), (>>=), (==), (++))
 import qualified Prelude as P
@@ -44,6 +44,38 @@ import qualified NewEden_Types
 import NewEdenMapService_Types
 import NewEdenMap
 seqid = R.newIORef 0
+toNames (ip,op) arg_systems = do
+  send_toNames op arg_systems
+  recv_toNames ip
+send_toNames op arg_systems = do
+  seq <- seqid
+  seqn <- R.readIORef seq
+  T.writeMessageBegin op ("toNames", T.M_CALL, seqn)
+  write_ToNames_args op (ToNames_args{toNames_args_systems=arg_systems})
+  T.writeMessageEnd op
+  T.tFlush (T.getTransport op)
+recv_toNames ip = do
+  (fname, mtype, rseqid) <- T.readMessageBegin ip
+  M.when (mtype == T.M_EXCEPTION) $ do { exn <- T.readAppExn ip ; T.readMessageEnd ip ; X.throw exn }
+  res <- read_ToNames_result ip
+  T.readMessageEnd ip
+  P.return $ toNames_result_success res
+toIds (ip,op) arg_systems = do
+  send_toIds op arg_systems
+  recv_toIds ip
+send_toIds op arg_systems = do
+  seq <- seqid
+  seqn <- R.readIORef seq
+  T.writeMessageBegin op ("toIds", T.M_CALL, seqn)
+  write_ToIds_args op (ToIds_args{toIds_args_systems=arg_systems})
+  T.writeMessageEnd op
+  T.tFlush (T.getTransport op)
+recv_toIds ip = do
+  (fname, mtype, rseqid) <- T.readMessageBegin ip
+  M.when (mtype == T.M_EXCEPTION) $ do { exn <- T.readAppExn ip ; T.readMessageEnd ip ; X.throw exn }
+  res <- read_ToIds_result ip
+  T.readMessageEnd ip
+  P.return $ toIds_result_success res
 systems (ip,op) = do
   send_systems op
   recv_systems ip

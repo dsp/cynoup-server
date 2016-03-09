@@ -24,6 +24,8 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] function [arg1 [arg2...]]')
     print('')
     print('Functions:')
+    print('   toNames( systems)')
+    print('   toIds( systems)')
     print('   systems()')
     print('   connection()')
     print('   closest(i32 solarSystemId, Coordinate coord)')
@@ -85,7 +87,19 @@ protocol = TBinaryProtocol(transport)
 client = NewEdenMap.Client(protocol)
 transport.open()
 
-if cmd == 'systems':
+if cmd == 'toNames':
+    if len(args) != 1:
+        print('toNames requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.toNames(eval(args[0]),))
+
+elif cmd == 'toIds':
+    if len(args) != 1:
+        print('toIds requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.toIds(eval(args[0]),))
+
+elif cmd == 'systems':
     if len(args) != 0:
         print('systems requires 0 args')
         sys.exit(1)

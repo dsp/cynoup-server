@@ -43,6 +43,8 @@ import qualified NewEden_Types
 import NewEdenMapService_Types
 
 class NewEdenMap_Iface a where
+  toNames :: a -> (Vector.Vector I.Int32) -> P.IO (Map.HashMap I.Int32 LT.Text)
+  toIds :: a -> (Vector.Vector LT.Text) -> P.IO (Map.HashMap LT.Text I.Int32)
   systems :: a -> P.IO (Map.HashMap I.Int32 NewEden_Types.SolarSystem)
   connection :: a -> P.IO (Map.HashMap I.Int32 NewEden_Types.Connection)
   closest :: a -> I.Int32 -> NewEden_Types.Coordinate -> P.IO (Vector.Vector NewEden_Types.Celestial)

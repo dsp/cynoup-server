@@ -58,6 +58,12 @@ instance NewEdenMap_Iface ServiceHandler where
     distance self celestial coord = do
         return 0.0
 
+    toNames self systems = do
+        V.map systemName $ V.map (flip lookupById universe) systems
+
+    toIds self systems = do
+        V.map systemName $ V.map (flip lookupById universe) systems
+
 prgVersion :: String
 prgVersion = "0.0.1"
 

@@ -18,6 +18,16 @@ use Thrift\Exception\TApplicationException;
 
 interface NewEdenMapIf {
   /**
+   * @param int[] $systems
+   * @return array
+   */
+  public function toNames(array $systems);
+  /**
+   * @param string[] $systems
+   * @return array
+   */
+  public function toIds(array $systems);
+  /**
    * Returns all system in the static dump
    * 
    * @return array
@@ -70,6 +80,108 @@ class NewEdenMapClient implements \cynoup\map\NewEdenMapIf {
   public function __construct($input, $output=null) {
     $this->input_ = $input;
     $this->output_ = $output ? $output : $input;
+  }
+
+  public function toNames(array $systems)
+  {
+    $this->send_toNames($systems);
+    return $this->recv_toNames();
+  }
+
+  public function send_toNames(array $systems)
+  {
+    $args = new \cynoup\map\NewEdenMap_toNames_args();
+    $args->systems = $systems;
+    $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+    if ($bin_accel)
+    {
+      thrift_protocol_write_binary($this->output_, 'toNames', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+    }
+    else
+    {
+      $this->output_->writeMessageBegin('toNames', TMessageType::CALL, $this->seqid_);
+      $args->write($this->output_);
+      $this->output_->writeMessageEnd();
+      $this->output_->getTransport()->flush();
+    }
+  }
+
+  public function recv_toNames()
+  {
+    $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
+    if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\cynoup\map\NewEdenMap_toNames_result', $this->input_->isStrictRead());
+    else
+    {
+      $rseqid = 0;
+      $fname = null;
+      $mtype = 0;
+
+      $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+      if ($mtype == TMessageType::EXCEPTION) {
+        $x = new TApplicationException();
+        $x->read($this->input_);
+        $this->input_->readMessageEnd();
+        throw $x;
+      }
+      $result = new \cynoup\map\NewEdenMap_toNames_result();
+      $result->read($this->input_);
+      $this->input_->readMessageEnd();
+    }
+    if ($result->success !== null) {
+      return $result->success;
+    }
+    throw new \Exception("toNames failed: unknown result");
+  }
+
+  public function toIds(array $systems)
+  {
+    $this->send_toIds($systems);
+    return $this->recv_toIds();
+  }
+
+  public function send_toIds(array $systems)
+  {
+    $args = new \cynoup\map\NewEdenMap_toIds_args();
+    $args->systems = $systems;
+    $bin_accel = ($this->output_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_write_binary');
+    if ($bin_accel)
+    {
+      thrift_protocol_write_binary($this->output_, 'toIds', TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+    }
+    else
+    {
+      $this->output_->writeMessageBegin('toIds', TMessageType::CALL, $this->seqid_);
+      $args->write($this->output_);
+      $this->output_->writeMessageEnd();
+      $this->output_->getTransport()->flush();
+    }
+  }
+
+  public function recv_toIds()
+  {
+    $bin_accel = ($this->input_ instanceof TBinaryProtocolAccelerated) && function_exists('thrift_protocol_read_binary');
+    if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\cynoup\map\NewEdenMap_toIds_result', $this->input_->isStrictRead());
+    else
+    {
+      $rseqid = 0;
+      $fname = null;
+      $mtype = 0;
+
+      $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+      if ($mtype == TMessageType::EXCEPTION) {
+        $x = new TApplicationException();
+        $x->read($this->input_);
+        $this->input_->readMessageEnd();
+        throw $x;
+      }
+      $result = new \cynoup\map\NewEdenMap_toIds_result();
+      $result->read($this->input_);
+      $this->input_->readMessageEnd();
+    }
+    if ($result->success !== null) {
+      return $result->success;
+    }
+    throw new \Exception("toIds failed: unknown result");
   }
 
   public function systems()
@@ -331,6 +443,426 @@ class NewEdenMapClient implements \cynoup\map\NewEdenMapIf {
 
 // HELPER FUNCTIONS AND STRUCTURES
 
+class NewEdenMap_toNames_args {
+  static $_TSPEC;
+
+  /**
+   * @var int[]
+   */
+  public $systems = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        1 => array(
+          'var' => 'systems',
+          'type' => TType::LST,
+          'etype' => TType::I32,
+          'elem' => array(
+            'type' => TType::I32,
+            ),
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['systems'])) {
+        $this->systems = $vals['systems'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'NewEdenMap_toNames_args';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 1:
+          if ($ftype == TType::LST) {
+            $this->systems = array();
+            $_size0 = 0;
+            $_etype3 = 0;
+            $xfer += $input->readListBegin($_etype3, $_size0);
+            for ($_i4 = 0; $_i4 < $_size0; ++$_i4)
+            {
+              $elem5 = null;
+              $xfer += $input->readI32($elem5);
+              $this->systems []= $elem5;
+            }
+            $xfer += $input->readListEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('NewEdenMap_toNames_args');
+    if ($this->systems !== null) {
+      if (!is_array($this->systems)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('systems', TType::LST, 1);
+      {
+        $output->writeListBegin(TType::I32, count($this->systems));
+        {
+          foreach ($this->systems as $iter6)
+          {
+            $xfer += $output->writeI32($iter6);
+          }
+        }
+        $output->writeListEnd();
+      }
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class NewEdenMap_toNames_result {
+  static $_TSPEC;
+
+  /**
+   * @var array
+   */
+  public $success = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        0 => array(
+          'var' => 'success',
+          'type' => TType::MAP,
+          'ktype' => TType::I32,
+          'vtype' => TType::STRING,
+          'key' => array(
+            'type' => TType::I32,
+          ),
+          'val' => array(
+            'type' => TType::STRING,
+            ),
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['success'])) {
+        $this->success = $vals['success'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'NewEdenMap_toNames_result';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 0:
+          if ($ftype == TType::MAP) {
+            $this->success = array();
+            $_size7 = 0;
+            $_ktype8 = 0;
+            $_vtype9 = 0;
+            $xfer += $input->readMapBegin($_ktype8, $_vtype9, $_size7);
+            for ($_i11 = 0; $_i11 < $_size7; ++$_i11)
+            {
+              $key12 = 0;
+              $val13 = '';
+              $xfer += $input->readI32($key12);
+              $xfer += $input->readString($val13);
+              $this->success[$key12] = $val13;
+            }
+            $xfer += $input->readMapEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('NewEdenMap_toNames_result');
+    if ($this->success !== null) {
+      if (!is_array($this->success)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('success', TType::MAP, 0);
+      {
+        $output->writeMapBegin(TType::I32, TType::STRING, count($this->success));
+        {
+          foreach ($this->success as $kiter14 => $viter15)
+          {
+            $xfer += $output->writeI32($kiter14);
+            $xfer += $output->writeString($viter15);
+          }
+        }
+        $output->writeMapEnd();
+      }
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class NewEdenMap_toIds_args {
+  static $_TSPEC;
+
+  /**
+   * @var string[]
+   */
+  public $systems = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        1 => array(
+          'var' => 'systems',
+          'type' => TType::LST,
+          'etype' => TType::STRING,
+          'elem' => array(
+            'type' => TType::STRING,
+            ),
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['systems'])) {
+        $this->systems = $vals['systems'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'NewEdenMap_toIds_args';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 1:
+          if ($ftype == TType::LST) {
+            $this->systems = array();
+            $_size16 = 0;
+            $_etype19 = 0;
+            $xfer += $input->readListBegin($_etype19, $_size16);
+            for ($_i20 = 0; $_i20 < $_size16; ++$_i20)
+            {
+              $elem21 = null;
+              $xfer += $input->readString($elem21);
+              $this->systems []= $elem21;
+            }
+            $xfer += $input->readListEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('NewEdenMap_toIds_args');
+    if ($this->systems !== null) {
+      if (!is_array($this->systems)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('systems', TType::LST, 1);
+      {
+        $output->writeListBegin(TType::STRING, count($this->systems));
+        {
+          foreach ($this->systems as $iter22)
+          {
+            $xfer += $output->writeString($iter22);
+          }
+        }
+        $output->writeListEnd();
+      }
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class NewEdenMap_toIds_result {
+  static $_TSPEC;
+
+  /**
+   * @var array
+   */
+  public $success = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        0 => array(
+          'var' => 'success',
+          'type' => TType::MAP,
+          'ktype' => TType::STRING,
+          'vtype' => TType::I32,
+          'key' => array(
+            'type' => TType::STRING,
+          ),
+          'val' => array(
+            'type' => TType::I32,
+            ),
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['success'])) {
+        $this->success = $vals['success'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'NewEdenMap_toIds_result';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 0:
+          if ($ftype == TType::MAP) {
+            $this->success = array();
+            $_size23 = 0;
+            $_ktype24 = 0;
+            $_vtype25 = 0;
+            $xfer += $input->readMapBegin($_ktype24, $_vtype25, $_size23);
+            for ($_i27 = 0; $_i27 < $_size23; ++$_i27)
+            {
+              $key28 = '';
+              $val29 = 0;
+              $xfer += $input->readString($key28);
+              $xfer += $input->readI32($val29);
+              $this->success[$key28] = $val29;
+            }
+            $xfer += $input->readMapEnd();
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('NewEdenMap_toIds_result');
+    if ($this->success !== null) {
+      if (!is_array($this->success)) {
+        throw new TProtocolException('Bad type in structure.', TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('success', TType::MAP, 0);
+      {
+        $output->writeMapBegin(TType::STRING, TType::I32, count($this->success));
+        {
+          foreach ($this->success as $kiter30 => $viter31)
+          {
+            $xfer += $output->writeString($kiter30);
+            $xfer += $output->writeI32($viter31);
+          }
+        }
+        $output->writeMapEnd();
+      }
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
 class NewEdenMap_systems_args {
   static $_TSPEC;
 
@@ -436,18 +968,18 @@ class NewEdenMap_systems_result {
         case 0:
           if ($ftype == TType::MAP) {
             $this->success = array();
-            $_size0 = 0;
-            $_ktype1 = 0;
-            $_vtype2 = 0;
-            $xfer += $input->readMapBegin($_ktype1, $_vtype2, $_size0);
-            for ($_i4 = 0; $_i4 < $_size0; ++$_i4)
+            $_size32 = 0;
+            $_ktype33 = 0;
+            $_vtype34 = 0;
+            $xfer += $input->readMapBegin($_ktype33, $_vtype34, $_size32);
+            for ($_i36 = 0; $_i36 < $_size32; ++$_i36)
             {
-              $key5 = 0;
-              $val6 = new \cynoup\neweden\SolarSystem();
-              $xfer += $input->readI32($key5);
-              $val6 = new \cynoup\neweden\SolarSystem();
-              $xfer += $val6->read($input);
-              $this->success[$key5] = $val6;
+              $key37 = 0;
+              $val38 = new \cynoup\neweden\SolarSystem();
+              $xfer += $input->readI32($key37);
+              $val38 = new \cynoup\neweden\SolarSystem();
+              $xfer += $val38->read($input);
+              $this->success[$key37] = $val38;
             }
             $xfer += $input->readMapEnd();
           } else {
@@ -475,10 +1007,10 @@ class NewEdenMap_systems_result {
       {
         $output->writeMapBegin(TType::I32, TType::STRUCT, count($this->success));
         {
-          foreach ($this->success as $kiter7 => $viter8)
+          foreach ($this->success as $kiter39 => $viter40)
           {
-            $xfer += $output->writeI32($kiter7);
-            $xfer += $viter8->write($output);
+            $xfer += $output->writeI32($kiter39);
+            $xfer += $viter40->write($output);
           }
         }
         $output->writeMapEnd();
@@ -597,18 +1129,18 @@ class NewEdenMap_connection_result {
         case 0:
           if ($ftype == TType::MAP) {
             $this->success = array();
-            $_size9 = 0;
-            $_ktype10 = 0;
-            $_vtype11 = 0;
-            $xfer += $input->readMapBegin($_ktype10, $_vtype11, $_size9);
-            for ($_i13 = 0; $_i13 < $_size9; ++$_i13)
+            $_size41 = 0;
+            $_ktype42 = 0;
+            $_vtype43 = 0;
+            $xfer += $input->readMapBegin($_ktype42, $_vtype43, $_size41);
+            for ($_i45 = 0; $_i45 < $_size41; ++$_i45)
             {
-              $key14 = 0;
-              $val15 = new \cynoup\neweden\Connection();
-              $xfer += $input->readI32($key14);
-              $val15 = new \cynoup\neweden\Connection();
-              $xfer += $val15->read($input);
-              $this->success[$key14] = $val15;
+              $key46 = 0;
+              $val47 = new \cynoup\neweden\Connection();
+              $xfer += $input->readI32($key46);
+              $val47 = new \cynoup\neweden\Connection();
+              $xfer += $val47->read($input);
+              $this->success[$key46] = $val47;
             }
             $xfer += $input->readMapEnd();
           } else {
@@ -636,10 +1168,10 @@ class NewEdenMap_connection_result {
       {
         $output->writeMapBegin(TType::I32, TType::STRUCT, count($this->success));
         {
-          foreach ($this->success as $kiter16 => $viter17)
+          foreach ($this->success as $kiter48 => $viter49)
           {
-            $xfer += $output->writeI32($kiter16);
-            $xfer += $viter17->write($output);
+            $xfer += $output->writeI32($kiter48);
+            $xfer += $viter49->write($output);
           }
         }
         $output->writeMapEnd();
@@ -807,15 +1339,15 @@ class NewEdenMap_closest_result {
         case 0:
           if ($ftype == TType::LST) {
             $this->success = array();
-            $_size18 = 0;
-            $_etype21 = 0;
-            $xfer += $input->readListBegin($_etype21, $_size18);
-            for ($_i22 = 0; $_i22 < $_size18; ++$_i22)
+            $_size50 = 0;
+            $_etype53 = 0;
+            $xfer += $input->readListBegin($_etype53, $_size50);
+            for ($_i54 = 0; $_i54 < $_size50; ++$_i54)
             {
-              $elem23 = null;
-              $elem23 = new \cynoup\neweden\Celestial();
-              $xfer += $elem23->read($input);
-              $this->success []= $elem23;
+              $elem55 = null;
+              $elem55 = new \cynoup\neweden\Celestial();
+              $xfer += $elem55->read($input);
+              $this->success []= $elem55;
             }
             $xfer += $input->readListEnd();
           } else {
@@ -843,9 +1375,9 @@ class NewEdenMap_closest_result {
       {
         $output->writeListBegin(TType::STRUCT, count($this->success));
         {
-          foreach ($this->success as $iter24)
+          foreach ($this->success as $iter56)
           {
-            $xfer += $iter24->write($output);
+            $xfer += $iter56->write($output);
           }
         }
         $output->writeListEnd();

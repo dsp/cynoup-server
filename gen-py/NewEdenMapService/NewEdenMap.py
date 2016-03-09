@@ -15,6 +15,20 @@ from thrift.transport import TTransport
 
 
 class Iface(object):
+    def toNames(self, systems):
+        """
+        Parameters:
+         - systems
+        """
+        pass
+
+    def toIds(self, systems):
+        """
+        Parameters:
+         - systems
+        """
+        pass
+
     def systems(self):
         """
         Returns all system in the static dump
@@ -70,6 +84,68 @@ class Client(Iface):
         if oprot is not None:
             self._oprot = oprot
         self._seqid = 0
+
+    def toNames(self, systems):
+        """
+        Parameters:
+         - systems
+        """
+        self.send_toNames(systems)
+        return self.recv_toNames()
+
+    def send_toNames(self, systems):
+        self._oprot.writeMessageBegin('toNames', TMessageType.CALL, self._seqid)
+        args = toNames_args()
+        args.systems = systems
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_toNames(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = toNames_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "toNames failed: unknown result")
+
+    def toIds(self, systems):
+        """
+        Parameters:
+         - systems
+        """
+        self.send_toIds(systems)
+        return self.recv_toIds()
+
+    def send_toIds(self, systems):
+        self._oprot.writeMessageBegin('toIds', TMessageType.CALL, self._seqid)
+        args = toIds_args()
+        args.systems = systems
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_toIds(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = toIds_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        if result.success is not None:
+            return result.success
+        raise TApplicationException(TApplicationException.MISSING_RESULT, "toIds failed: unknown result")
 
     def systems(self):
         """
@@ -244,6 +320,8 @@ class Processor(Iface, TProcessor):
     def __init__(self, handler):
         self._handler = handler
         self._processMap = {}
+        self._processMap["toNames"] = Processor.process_toNames
+        self._processMap["toIds"] = Processor.process_toIds
         self._processMap["systems"] = Processor.process_systems
         self._processMap["connection"] = Processor.process_connection
         self._processMap["closest"] = Processor.process_closest
@@ -264,6 +342,44 @@ class Processor(Iface, TProcessor):
         else:
             self._processMap[name](self, seqid, iprot, oprot)
         return True
+
+    def process_toNames(self, seqid, iprot, oprot):
+        args = toNames_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = toNames_result()
+        try:
+            result.success = self._handler.toNames(args.systems)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("toNames", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_toIds(self, seqid, iprot, oprot):
+        args = toIds_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = toIds_result()
+        try:
+            result.success = self._handler.toIds(args.systems)
+            msg_type = TMessageType.REPLY
+        except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+            raise
+        except Exception as ex:
+            msg_type = TMessageType.EXCEPTION
+            logging.exception(ex)
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("toIds", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
 
     def process_systems(self, seqid, iprot, oprot):
         args = systems_args()
@@ -363,6 +479,280 @@ class Processor(Iface, TProcessor):
 # HELPER FUNCTIONS AND STRUCTURES
 
 
+class toNames_args(object):
+    """
+    Attributes:
+     - systems
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.LIST, 'systems', (TType.I32, None, False), None, ),  # 1
+    )
+
+    def __init__(self, systems=None,):
+        self.systems = systems
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.LIST:
+                    self.systems = []
+                    (_etype3, _size0) = iprot.readListBegin()
+                    for _i4 in range(_size0):
+                        _elem5 = iprot.readI32()
+                        self.systems.append(_elem5)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('toNames_args')
+        if self.systems is not None:
+            oprot.writeFieldBegin('systems', TType.LIST, 1)
+            oprot.writeListBegin(TType.I32, len(self.systems))
+            for iter6 in self.systems:
+                oprot.writeI32(iter6)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class toNames_result(object):
+    """
+    Attributes:
+     - success
+    """
+
+    thrift_spec = (
+        (0, TType.MAP, 'success', (TType.I32, None, TType.STRING, 'UTF8', False), None, ),  # 0
+    )
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype8, _vtype9, _size7) = iprot.readMapBegin()
+                    for _i11 in range(_size7):
+                        _key12 = iprot.readI32()
+                        _val13 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.success[_key12] = _val13
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('toNames_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.I32, TType.STRING, len(self.success))
+            for kiter14, viter15 in self.success.items():
+                oprot.writeI32(kiter14)
+                oprot.writeString(viter15.encode('utf-8') if sys.version_info[0] == 2 else viter15)
+            oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class toIds_args(object):
+    """
+    Attributes:
+     - systems
+    """
+
+    thrift_spec = (
+        None,  # 0
+        (1, TType.LIST, 'systems', (TType.STRING, 'UTF8', False), None, ),  # 1
+    )
+
+    def __init__(self, systems=None,):
+        self.systems = systems
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.LIST:
+                    self.systems = []
+                    (_etype19, _size16) = iprot.readListBegin()
+                    for _i20 in range(_size16):
+                        _elem21 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        self.systems.append(_elem21)
+                    iprot.readListEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('toIds_args')
+        if self.systems is not None:
+            oprot.writeFieldBegin('systems', TType.LIST, 1)
+            oprot.writeListBegin(TType.STRING, len(self.systems))
+            for iter22 in self.systems:
+                oprot.writeString(iter22.encode('utf-8') if sys.version_info[0] == 2 else iter22)
+            oprot.writeListEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
+class toIds_result(object):
+    """
+    Attributes:
+     - success
+    """
+
+    thrift_spec = (
+        (0, TType.MAP, 'success', (TType.STRING, 'UTF8', TType.I32, None, False), None, ),  # 0
+    )
+
+    def __init__(self, success=None,):
+        self.success = success
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, (self.__class__, self.thrift_spec))
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 0:
+                if ftype == TType.MAP:
+                    self.success = {}
+                    (_ktype24, _vtype25, _size23) = iprot.readMapBegin()
+                    for _i27 in range(_size23):
+                        _key28 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                        _val29 = iprot.readI32()
+                        self.success[_key28] = _val29
+                    iprot.readMapEnd()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, (self.__class__, self.thrift_spec)))
+            return
+        oprot.writeStructBegin('toIds_result')
+        if self.success is not None:
+            oprot.writeFieldBegin('success', TType.MAP, 0)
+            oprot.writeMapBegin(TType.STRING, TType.I32, len(self.success))
+            for kiter30, viter31 in self.success.items():
+                oprot.writeString(kiter30.encode('utf-8') if sys.version_info[0] == 2 else kiter30)
+                oprot.writeI32(viter31)
+            oprot.writeMapEnd()
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+
+
 class systems_args(object):
 
     thrift_spec = (
@@ -430,12 +820,12 @@ class systems_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype1, _vtype2, _size0) = iprot.readMapBegin()
-                    for _i4 in range(_size0):
-                        _key5 = iprot.readI32()
-                        _val6 = NewEden.ttypes.SolarSystem()
-                        _val6.read(iprot)
-                        self.success[_key5] = _val6
+                    (_ktype33, _vtype34, _size32) = iprot.readMapBegin()
+                    for _i36 in range(_size32):
+                        _key37 = iprot.readI32()
+                        _val38 = NewEden.ttypes.SolarSystem()
+                        _val38.read(iprot)
+                        self.success[_key37] = _val38
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -452,9 +842,9 @@ class systems_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.I32, TType.STRUCT, len(self.success))
-            for kiter7, viter8 in self.success.items():
-                oprot.writeI32(kiter7)
-                viter8.write(oprot)
+            for kiter39, viter40 in self.success.items():
+                oprot.writeI32(kiter39)
+                viter40.write(oprot)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -542,12 +932,12 @@ class connection_result(object):
             if fid == 0:
                 if ftype == TType.MAP:
                     self.success = {}
-                    (_ktype10, _vtype11, _size9) = iprot.readMapBegin()
-                    for _i13 in range(_size9):
-                        _key14 = iprot.readI32()
-                        _val15 = NewEden.ttypes.Connection()
-                        _val15.read(iprot)
-                        self.success[_key14] = _val15
+                    (_ktype42, _vtype43, _size41) = iprot.readMapBegin()
+                    for _i45 in range(_size41):
+                        _key46 = iprot.readI32()
+                        _val47 = NewEden.ttypes.Connection()
+                        _val47.read(iprot)
+                        self.success[_key46] = _val47
                     iprot.readMapEnd()
                 else:
                     iprot.skip(ftype)
@@ -564,9 +954,9 @@ class connection_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.MAP, 0)
             oprot.writeMapBegin(TType.I32, TType.STRUCT, len(self.success))
-            for kiter16, viter17 in self.success.items():
-                oprot.writeI32(kiter16)
-                viter17.write(oprot)
+            for kiter48, viter49 in self.success.items():
+                oprot.writeI32(kiter48)
+                viter49.write(oprot)
             oprot.writeMapEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
@@ -685,11 +1075,11 @@ class closest_result(object):
             if fid == 0:
                 if ftype == TType.LIST:
                     self.success = []
-                    (_etype21, _size18) = iprot.readListBegin()
-                    for _i22 in range(_size18):
-                        _elem23 = NewEden.ttypes.Celestial()
-                        _elem23.read(iprot)
-                        self.success.append(_elem23)
+                    (_etype53, _size50) = iprot.readListBegin()
+                    for _i54 in range(_size50):
+                        _elem55 = NewEden.ttypes.Celestial()
+                        _elem55.read(iprot)
+                        self.success.append(_elem55)
                     iprot.readListEnd()
                 else:
                     iprot.skip(ftype)
@@ -706,8 +1096,8 @@ class closest_result(object):
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.LIST, 0)
             oprot.writeListBegin(TType.STRUCT, len(self.success))
-            for iter24 in self.success:
-                iter24.write(oprot)
+            for iter56 in self.success:
+                iter56.write(oprot)
             oprot.writeListEnd()
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
