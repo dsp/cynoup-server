@@ -79,7 +79,8 @@ universeMaybe s c =
                 -- TODO: Have to think about this again, it makes the amount of systems
                 -- to consider much smaller but assumes eve game limits in the API.
                 distanceList = distances (filter jumpableSystems (S.toList systems)),
-                lookupMap = lookupMap
+                lookupMap = lookupMap,
+                weights = M.empty
             }
     else
         Nothing
@@ -130,14 +131,17 @@ lookupById i u = M.lookup i (lookupMap u)
 combine :: Universe -> Universe -> Universe
 combine u1 u2 =
     let
-        (s1, al1, dl1, lm1) = (solarSystems u1, adjacentList u1, distanceList u1, lookupMap u1)
-        (s2, al2, dl2, lm2) = (solarSystems u2, adjacentList u2, distanceList u2, lookupMap u2)
+        (s1, al1, dl1, lm1, wm1) =
+            (solarSystems u1, adjacentList u1, distanceList u1, lookupMap u1, weights u1)
+        (s2, al2, dl2, lm2, wm2) =
+            (solarSystems u2, adjacentList u2, distanceList u2, lookupMap u2, weights u2)
     in
     Universe {
         solarSystems = S.union s1 s2,
         adjacentList = M.unionWith combine al1 al2,
         lookupMap = M.union lm1 lm2,
-        distanceList = M.unionWith (\a b -> sort (combine a b)) dl1 dl2
+        distanceList = M.unionWith (\a b -> sort (combine a b)) dl1 dl2,
+        weights = M.union wm1 wm2
     }
     where
         combine a b = nub $ a ++ b
@@ -151,7 +155,8 @@ insertConnections u c =
         solarSystems = solarSystems u,
         adjacentList = M.unionWith combine (adjacentList u) connections,
         distanceList = distanceList u,
-        lookupMap = lookupMap u
+        lookupMap = lookupMap u,
+        weights = weights u
     }
     where
         combine a b = nub $ a ++ b

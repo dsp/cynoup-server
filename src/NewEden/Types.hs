@@ -83,7 +83,7 @@ instance Ord Solarsystem where
 
 type Route = [Solarsystem]
 type AdjacentList = M.HashMap Solarsystem [Solarsystem]
-type DistanceFn = (Solarsystem -> Solarsystem -> Double)
+type DistanceFn = (Universe -> Solarsystem -> Solarsystem -> Double)
 type NeighbourFn = (Universe -> Solarsystem -> [Solarsystem])
 type LookupMap = M.HashMap Id Solarsystem
 type DistanceList = M.HashMap Solarsystem [DistancePair]
@@ -107,7 +107,8 @@ data Universe = Universe {
     solarSystems :: S.Set Solarsystem,
     adjacentList :: AdjacentList,
     distanceList :: DistanceList,
-    lookupMap :: LookupMap
+    lookupMap :: LookupMap,
+    weights :: M.HashMap (Solarsystem, Solarsystem) Double
 } deriving (Show, Eq)
 
 data Connection = Connection Solarsystem Solarsystem

@@ -78,7 +78,7 @@ prop_fromConnectionList xs =
             (b `elem` adjacentToA)
 
 
-weightfn _ _ = 1.0
+weightfn _ _ _ = 1.0
 distancefn _ = 0.0
 --prop_dijkstra2 u a b =
 --    maybe True ((> 0) . length) (dijkstra u weightfn distancefn (a,b))

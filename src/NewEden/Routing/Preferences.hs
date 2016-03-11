@@ -7,13 +7,15 @@ module NewEden.Routing.Preferences
     ) where
 
 import NewEden.Types
-    
 
-preferShorter :: Solarsystem -> Solarsystem -> Double
-preferShorter _ _ = 1.0
+import qualified Data.HashMap.Strict as HM
+
+preferShorter :: Universe -> Solarsystem -> Solarsystem -> Double
+preferShorter u a b =
+    maybe 1.0 id (HM.lookup (a,b) (weights u))
 
 
-preferSafer :: Solarsystem -> Solarsystem -> Double
+preferSafer :: Universe -> Solarsystem -> Solarsystem -> Double
 preferSafer =
     prefer sec
     where
@@ -24,7 +26,7 @@ preferSafer =
             | otherwise = 1.0
 
 
-preferLessSafe :: Solarsystem -> Solarsystem -> Double
+preferLessSafe :: Universe -> Solarsystem -> Solarsystem -> Double
 preferLessSafe =
     prefer sec
     where
@@ -35,7 +37,7 @@ preferLessSafe =
             | otherwise = 1000.0
 
 
-preferHighsec :: Solarsystem -> Solarsystem -> Double
+preferHighsec :: Universe -> Solarsystem -> Solarsystem -> Double
 preferHighsec =
     prefer sec
     where
@@ -46,8 +48,11 @@ preferHighsec =
             | otherwise = 1.0
 
 -- Internal:
-prefer :: (Double -> Double) -> Solarsystem -> Solarsystem -> Double
-prefer fn a b = fn $ min (systemSecurity a) (systemSecurity b)
+prefer :: (Double -> Double) -> Universe -> Solarsystem -> Solarsystem -> Double
+prefer fn u a b = 
+    multiplier * (preferShorter u a b)
+    where
+        multiplier = fn $ min (systemSecurity a) (systemSecurity b)
 
 fromRoutePreference :: RoutePreference -> DistanceFn
 fromRoutePreference pref =

@@ -35,7 +35,7 @@ struct Connection
 {
     1: i32 fromSystemId,
     2: i32 toSystemId,
-    3: optional i16 weight = 1,
+    3: optional double weight = 1.0,
 }
 
 struct Celestial

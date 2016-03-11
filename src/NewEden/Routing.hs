@@ -142,7 +142,7 @@ astar universe distFn estFn neighbourFn (from, to)
                       -> State DijkstraState ()
                 relax cur next = do
                     (h, d, p) <- get
-                    let alt = (d M.! cur) + (distFn cur next) + (estFn next)
+                    let alt = (d M.! cur) + (distFn universe cur next) + (estFn next)
                     let nextDist = M.lookup next d
                     if isNothing nextDist || alt < fromJust nextDist then
                         put (H.insert (alt, next) h, -- add to queue
