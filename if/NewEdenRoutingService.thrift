@@ -1,5 +1,6 @@
 namespace cpp cynoup.routing
 namespace php cynoup.routing
+namespace go cynoup.routing
 
 include "NewEden.thrift"
 

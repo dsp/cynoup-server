@@ -1,5 +1,6 @@
 namespace cpp cynoup.map
 namespace php cynoup.map
+namespace go cynoup.map
 
 include "NewEden.thrift"
 

@@ -1,5 +1,6 @@
 namespace cpp cynoup.neweden
 namespace php cynoup.neweden
+namespace go cynoup.neweden
 
 /**
  * Represents a coordinate in New Eden. The coordinate is absolute.
