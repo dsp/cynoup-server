@@ -59,10 +59,12 @@ instance NewEdenMap_Iface ServiceHandler where
         return 0.0
 
     toNames self systems = do
-        V.map systemName $ V.map (flip lookupById universe) systems
+        return $ HM.empty
+--        V.map systemName $ V.mapMaybe (flip lookupById universe) systems
 
     toIds self systems = do
-        V.map systemName $ V.map (flip lookupById universe) systems
+        return $ HM.empty
+--        V.map systemName $ V.mapMaybe (flip lookupById universe) systems
 
 prgVersion :: String
 prgVersion = "0.0.1"

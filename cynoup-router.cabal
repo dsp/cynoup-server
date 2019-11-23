@@ -21,8 +21,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     NewEden
   build-depends:       base >= 4.7 && < 5
-                     , HDBC
-                     , HDBC-sqlite3
+                     , sqlite-simple
                      , QuickCheck
                      , bytestring
                      , containers
@@ -101,8 +100,7 @@ test-suite cynoup-quickcheck
   build-depends:       base
                      , containers
                      , hashable
-                     , HDBC
-                     , HDBC-sqlite3
+                     , sqlite-simple
                      , heap
                      , heredoc
                      , mtl
@@ -123,8 +121,7 @@ test-suite cynoup-hunit
                      , containers
                      , directory
                      , hashable
-                     , HDBC
-                     , HDBC-sqlite3
+                     , sqlite-simple
                      , heap
                      , heredoc
                      , mtl

@@ -13,7 +13,7 @@ service NewEdenMap
      * Returns all system in the static dump
      */
     map<i32, NewEden.SolarSystem> systems(),
-    
+
     /**
      * Returns all connections in the static dump
      */

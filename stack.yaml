@@ -1,5 +1,5 @@
 packages: 
 - '.'
 - 'thrift/lib/hs'
-resolver: nightly-2016-02-20
+resolver: lts-14.14
 system-ghc: false
