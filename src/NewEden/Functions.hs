@@ -21,12 +21,12 @@ module NewEden.Functions
     , universeMaybe
     ) where
 
-import NewEden.Types
+import           NewEden.Types
 
 import qualified Data.HashMap.Strict as M
-import qualified Data.Set as S
-import Data.Maybe (fromJust)
-import Data.List (nub, sort)
+import           Data.List           (nub, sort)
+import           Data.Maybe          (fromJust)
+import qualified Data.Set            as S
 
 
 -- | Converts meters to lightyears.

@@ -1,25 +1,25 @@
-{-# LANGUAGE OverloadedStrings #-} 
+{-# LANGUAGE OverloadedStrings #-}
 
-module RunServer 
+module RunServer
   (
     runServerFromComandline
   ) where
 
-import Control.Monad
-import Data.Text.Format as F
-import Network (PortNumber)
-import System.Console.GetOpt
-import System.Directory
-import System.Environment
-import System.Exit
-import System.IO
+import           Control.Monad
+import           Data.Text.Format       as F
+import           Network                (PortNumber)
+import           System.Console.GetOpt
+import           System.Directory
+import           System.Environment
+import           System.Exit
+import           System.IO
 
 import qualified NewEdenRouting
 
-import Thrift
-import Thrift.Protocol.Binary
-import Thrift.Transport
-import Thrift.Server
+import           Thrift
+import           Thrift.Protocol.Binary
+import           Thrift.Server
+import           Thrift.Transport
 
 data Options = Options  { optVerbose  :: Bool
                         , optDatabase :: String

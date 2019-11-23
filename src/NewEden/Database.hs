@@ -8,44 +8,44 @@ Portability : POSIX
 
 A simple interface to read the map of New Eden from an SQLite static dump.
 -}
-{-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE QuasiQuotes           #-}
 module NewEden.Database
     ( generateNewEden
     ) where
 
-import NewEden.Functions
-import NewEden.Types
+import           NewEden.Functions
+import           NewEden.Types
 
-import Control.Monad (mapM)
-import qualified Data.HashMap.Strict as M
-import qualified Data.Set as S
+import           Control.Monad          (mapM)
+import qualified Data.HashMap.Strict    as M
 import qualified Data.Int
-import Data.Maybe (fromJust)
+import           Data.Maybe             (fromJust)
+import qualified Data.Set               as S
+import           Data.String            (fromString)
 import qualified Database.SQLite.Simple as SQL
-import Text.Heredoc (str)
-import Data.String (fromString)
-import System.IO.Unsafe (unsafeInterleaveIO)
+import           System.IO.Unsafe       (unsafeInterleaveIO)
+import           Text.Heredoc           (str)
 
 data DbSolarsystem = DbSolarsystem {
-    dbSystemId :: Data.Int.Int32,
-    dbSystemName :: String,
-    dbSystemCoordX :: Double,
-    dbSystemCoordY :: Double,
-    dbSystemCoordZ :: Double,
-    dbSystemSecurity :: Double,
-    dbSystemRegion :: Data.Int.Int32,
+    dbSystemId         :: Data.Int.Int32,
+    dbSystemName       :: String,
+    dbSystemCoordX     :: Double,
+    dbSystemCoordY     :: Double,
+    dbSystemCoordZ     :: Double,
+    dbSystemSecurity   :: Double,
+    dbSystemRegion     :: Data.Int.Int32,
     dbSystemRegionName :: String
 } deriving (Show)
 
 data DbCelestial = DbCelestial {
-    dbCelestialItemID :: Id,
-    dbCelestialTypeID :: Id,
+    dbCelestialItemID   :: Id,
+    dbCelestialTypeID   :: Id,
     dbCelestialTypeName :: String,
-    dbCelestialName :: String,
-    dbCelestialCoordX :: Lightyear,
-    dbCelestialCoordY :: Lightyear,
-    dbCelestialCoordZ :: Lightyear
+    dbCelestialName     :: String,
+    dbCelestialCoordX   :: Lightyear,
+    dbCelestialCoordY   :: Lightyear,
+    dbCelestialCoordZ   :: Lightyear
 } deriving (Show)
 
 data DbConnection = DbConnection Id Id
@@ -191,5 +191,5 @@ generateNewEden dbPath =
 --     hnd <- SQL.open dbPath
 --     resCelestials <- SQL.query_ hnd stmCelestials (SQL.Only systemId) :: IO [DbCelestial]
 --     SQL.close hnd
--- 
+--
 --     return $ map toCelestial resCelestials

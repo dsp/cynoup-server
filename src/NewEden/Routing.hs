@@ -18,14 +18,14 @@ module NewEden.Routing
     , route
     ) where
 
-import NewEden.Types
-import qualified NewEden.Functions as NE
+import qualified NewEden.Functions           as NE
+import           NewEden.Types
 
-import Control.Monad
-import Control.Monad.State
-import Data.Maybe
-import qualified Data.Heap as H
-import qualified Data.HashMap.Strict as M
+import           Control.Monad
+import           Control.Monad.State
+import qualified Data.HashMap.Strict         as M
+import qualified Data.Heap                   as H
+import           Data.Maybe
 import qualified NewEden.Routing.Preferences as Pref
 
 -- TODO: I think the naming is wrong, we want to fix that.
@@ -36,7 +36,7 @@ adjacentSystems u s = (adjacentList u M.! s)
 
 -- TODO: fix this ugly stuff here.
 reachableSystems :: Lightyear -> Universe -> Solarsystem -> [Solarsystem]
-reachableSystems d u s = 
+reachableSystems d u s =
     let
         pred = distancePred (<= d)
         list = (distanceList u) M.! s
@@ -165,7 +165,7 @@ splitMin :: DijkstraHeap -> (Maybe Solarsystem, DijkstraHeap)
 splitMin h =
     let (a,b) = H.splitAt 1 h in
     case a of
-        [] -> (Nothing, b)
+        []        -> (Nothing, b)
         otherwise -> (Just ((snd . head) a), b)
 
 -- | Checks if foldable is null and returns Nothing or Just.

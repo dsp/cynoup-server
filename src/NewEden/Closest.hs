@@ -4,9 +4,9 @@ module NewEden.Closest
     , distanceToLine
     ) where
 
-import NewEden.Types
+import           NewEden.Types
 
-import Data.List
+import           Data.List
 
 cross :: Coordinate -> Coordinate -> Coordinate
 cross (Coordinate x0 y0 z0) (Coordinate x1 y1 z1) =

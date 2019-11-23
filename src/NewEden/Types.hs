@@ -33,11 +33,11 @@ module NewEden.Types
     , Universe(..)
     ) where
 
-import GHC.Generics (Generic)
+import           Data.Hashable       (Hashable)
 import qualified Data.HashMap.Strict as M
-import qualified Data.Set as S
 import qualified Data.Int
-import Data.Hashable (Hashable)
+import qualified Data.Set            as S
+import           GHC.Generics        (Generic)
 
 type Lightyear = Double
 type Meter = Double
@@ -50,25 +50,25 @@ data Coordinate = Coordinate {
 } deriving (Show, Eq, Generic)
 
 data Region = Region {
-    regionId :: Id,
+    regionId   :: Id,
     regionName :: String
 } deriving (Show, Eq, Generic)
 
 data Solarsystem = Solarsystem {
-    systemId :: Id,
-    systemName :: String,
-    systemCoord :: Coordinate,
-    systemSecurity :: Double,
-    systemRegion :: Region,
+    systemId         :: Id,
+    systemName       :: String,
+    systemCoord      :: Coordinate,
+    systemSecurity   :: Double,
+    systemRegion     :: Region,
     systemCelestials :: [Celestial]
 } deriving (Show, Generic)
 
 data Celestial = Celestial {
-    celestialItemID :: Id,
-    celestialTypeID :: Id,
+    celestialItemID   :: Id,
+    celestialTypeID   :: Id,
     celestialTypeName :: String,
-    celestialName :: String,
-    celestialCoord :: Coordinate
+    celestialName     :: String,
+    celestialCoord    :: Coordinate
 } deriving (Show, Generic)
 
 instance Hashable Celestial
@@ -91,15 +91,15 @@ type EstimationFn = (Solarsystem -> Double)
 
 data DistancePair = DistancePair {
         dpDistance :: Lightyear,
-        dpSystem :: Solarsystem
+        dpSystem   :: Solarsystem
     } deriving (Show)
 instance Eq DistancePair where
     (==) d1 d2 = dpSystem d1 == dpSystem d2
 instance Ord DistancePair where
-    (<=) d1 d2 = dpDistance d1 <= dpDistance d2 
+    (<=) d1 d2 = dpDistance d1 <= dpDistance d2
 
 -- | Represents a universe.
--- 
+--
 -- The distance list is a bit weird here. It could very well be in the solarsystem itself,
 -- but as we construct the solar systems separately from the universe, I want to delay
 -- the calculation of the distances until we have a univese.
@@ -107,8 +107,8 @@ data Universe = Universe {
     solarSystems :: S.Set Solarsystem,
     adjacentList :: AdjacentList,
     distanceList :: DistanceList,
-    lookupMap :: LookupMap,
-    weights :: M.HashMap (Solarsystem, Solarsystem) Double
+    lookupMap    :: LookupMap,
+    weights      :: M.HashMap (Solarsystem, Solarsystem) Double
 } deriving (Show, Eq)
 
 data Connection = Connection Solarsystem Solarsystem

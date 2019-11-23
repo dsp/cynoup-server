@@ -1,8 +1,8 @@
 module Convert where
 import qualified Data.Text.Lazy as TL
 
-import qualified NewEden as E
-import qualified NewEden_Types as T
+import qualified NewEden        as E
+import qualified NewEden_Types  as T
 
 toThriftSolarSystem :: E.Solarsystem -> T.SolarSystem
 toThriftSolarSystem s =

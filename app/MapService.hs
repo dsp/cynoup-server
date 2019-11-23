@@ -1,28 +1,28 @@
-{-# LANGUAGE OverloadedStrings #-} 
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Control.Concurrent.MVar
-import Control.Exception (throw)
-import Control.Monad
-import Data.Maybe
-import Data.Int
-import qualified Data.Text.Lazy as TL
-import Network (PortNumber)
-import System.IO
-import qualified Data.Text.Format as F
-import qualified Data.Vector as V
-import qualified Data.HashMap.Strict as HM
-import qualified Data.Set as S
+import           Control.Concurrent.MVar
+import           Control.Exception       (throw)
+import           Control.Monad
+import qualified Data.HashMap.Strict     as HM
+import           Data.Int
+import           Data.Maybe
+import qualified Data.Set                as S
+import qualified Data.Text.Format        as F
+import qualified Data.Text.Lazy          as TL
+import qualified Data.Vector             as V
+import           Network                 (PortNumber)
+import           System.IO
 
-import qualified Convert as Conv
+import qualified Convert                 as Conv
+import qualified NewEden_Types           as T
 import qualified NewEdenMap
-import qualified NewEden_Types as T
 import qualified NewEdenMapService_Types as TM
-import qualified Thrift.Server as TS
+import qualified Thrift.Server           as TS
 
-import NewEdenMap_Iface
-import NewEden
-import RunServer
+import           NewEden
+import           NewEdenMap_Iface
+import           RunServer
 
 data ServiceHandler = ServiceHandler {
     neweden :: MVar Universe
